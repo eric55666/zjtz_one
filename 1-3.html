@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投资与风险教学游戏 - 证券投资学</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .panel h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .asset-allocation {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .asset {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .asset-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .asset-info {
+            flex: 1;
+        }
+        
+        .asset-name {
+            font-weight: bold;
+        }
+        
+        .asset-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+        }
+        
+        .percentage {
+            width: 50px;
+            text-align: right;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        #simulate {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        #reset {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .results {
+            margin-top: 20px;
+        }
+        
+        .portfolio-summary {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .metric {
+            padding: 10px;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .risk-meter {
+            height: 20px;
+            background: linear-gradient(to right, var(--success), var(--warning), var(--danger));
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .risk-indicator {
+            position: absolute;
+            top: -5px;
+            width: 10px;
+            height: 30px;
+            background-color: var(--primary);
+            transform: translateX(-50%);
+            transition: left 0.5s ease;
+        }
+        
+        .risk-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .learning-points {
+            margin-top: 30px;
+        }
+        
+        .point {
+            background: var(--light);
+            padding: 15px;
+            border-left: 4px solid var(--secondary);
+            margin-bottom: 10px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .conclusion {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>投资与风险教学游戏</h1>
+            <p class="subtitle">证券投资学第一章：体验风险与回报的平衡</p>
+        </header>
+        
+        <div class="game-area">
+            <div class="panel">
+                <h2>资产配置</h2>
+                <div class="asset-allocation">
+                    <div class="asset">
+                        <div class="asset-color" style="background-color: #e74c3c;"></div>
+                        <div class="asset-info">
+                            <div class="asset-name">股票</div>
+                            <div class="asset-desc">高风险高回报，波动性大</div>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="100" value="40" class="asset-slider" data-asset="stocks">
+                            <span class="percentage">40%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="asset">
+                        <div class="asset-color" style="background-color: #3498db;"></div>
+                        <div class="asset-info">
+                            <div class="asset-name">债券</div>
+                            <div class="asset-desc">中等风险回报，稳定性较好</div>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="100" value="40" class="asset-slider" data-asset="bonds">
+                            <span class="percentage">40%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="asset">
+                        <div class="asset-color" style="background-color: #2ecc71;"></div>
+                        <div class="asset-info">
+                            <div class="asset-name">现金</div>
+                            <div class="asset-desc">低风险低回报，流动性强</div>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="100" value="20" class="asset-slider" data-asset="cash">
+                            <span class="percentage">20%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="risk-meter">
+                    <div class="risk-indicator" id="riskIndicator" style="left: 40%;"></div>
+                </div>
+                <div class="risk-labels">
+                    <span>低风险</span>
+                    <span>中等风险</span>
+                    <span>高风险</span>
+                </div>
+                
+                <div class="controls">
+                    <button id="simulate">模拟投资</button>
+                    <button id="reset">重置配置</button>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>投资结果</h2>
+                <div class="portfolio-summary">
+                    <div class="metric">
+                        <div class="metric-value" id="initialValue">¥10,000</div>
+                        <div class="metric-label">初始投资</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="finalValue">¥10,000</div>
+                        <div class="metric-label">最终价值</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="returnRate">0%</div>
+                        <div class="metric-label">回报率</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="maxDrawdown">0%</div>
+                        <div class="metric-label">最大回撤</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="learning-points">
+            <h2>学习要点</h2>
+            <div class="point">
+                <strong>风险与回报的权衡：</strong> 高回报通常伴随着高风险。尝试调整股票比例，观察风险和回报的变化。
+            </div>
+            <div class="point">
+                <strong>分散投资的重要性：</strong> 将资金分配到不同资产类别可以降低整体投资组合的风险。
+            </div>
+            <div class="point">
+                <strong>资产配置策略：</strong> 根据投资目标和风险承受能力，制定合适的资产配置方案。
+            </div>
+        </div>
+        
+        <div class="conclusion">
+            <h2>本章核心概念</h2>
+            <p>投资本质上是当前消费与未来消费之间的权衡。风险是投资过程中不可避免的因素，而有效的风险管理是成功投资的关键。通过本游戏，您可以直观地体验到不同资产配置如何影响投资组合的风险和回报特征。</p>
+            <p>记住：没有"最佳"的投资组合，只有最适合您风险偏好和投资目标的配置方案。</p>
+        </div>
+        
+        <footer>
+            <p>证券投资学第一章教学工具 | 设计者：证券投资学教授</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // 初始化变量
+        let portfolio = {
+            stocks: 40,
+            bonds: 40,
+            cash: 20
+        };
+        
+        let initialInvestment = 10000;
+        let performanceData = [];
+        let chart = null;
+        
+        // DOM 元素
+        const sliders = document.querySelectorAll('.asset-slider');
+        const percentages = document.querySelectorAll('.percentage');
+        const riskIndicator = document.getElementById('riskIndicator');
+        const initialValueEl = document.getElementById('initialValue');
+        const finalValueEl = document.getElementById('finalValue');
+        const returnRateEl = document.getElementById('returnRate');
+        const maxDrawdownEl = document.getElementById('maxDrawdown');
+        const simulateBtn = document.getElementById('simulate');
+        const resetBtn = document.getElementById('reset');
+        
+        // 初始化图表
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        
+        // 更新百分比显示和风险指示器
+        function updateDisplay() {
+            let total = 0;
+            
+            sliders.forEach((slider, index) => {
+                const value = parseInt(slider.value);
+                percentages[index].textContent = value + '%';
+                total += value;
+            });
+            
+            // 确保总和为100%
+            if (total !== 100) {
+                const diff = 100 - total;
+                // 简单调整最后一个滑块的值
+                const lastSlider = sliders[sliders.length - 1];
+                const lastValue = parseInt(lastSlider.value) + diff;
+                lastSlider.value = Math.max(0, Math.min(100, lastValue));
+                percentages[sliders.length - 1].textContent = lastSlider.value + '%';
+            }
+            
+            // 更新投资组合对象
+            portfolio.stocks = parseInt(sliders[0].value);
+            portfolio.bonds = parseInt(sliders[1].value);
+            portfolio.cash = parseInt(sliders[2].value);
+            
+            // 更新风险指示器位置（基于股票比例）
+            const riskLevel = portfolio.stocks / 100 * 80 + 10; // 10%到90%之间
+            riskIndicator.style.left = riskLevel + '%';
+        }
+        
+        // 模拟投资回报
+        function simulateInvestment() {
+            // 重置数据
+            performanceData = [initialInvestment];
+            
+            // 模拟12个月的投资表现
+            let currentValue = initialInvestment;
+            let peakValue = initialInvestment;
+            let maxDrawdown = 0;
+            
+            for (let month = 1; month <= 12; month++) {
+                // 生成随机回报（基于资产配置）
+                const stockReturn = (Math.random() - 0.5) * 0.4; // -20%到+20%
+                const bondReturn = (Math.random() - 0.2) * 0.2; // -10%到+10%
+                const cashReturn = (Math.random() - 0.05) * 0.1; // -2.5%到+2.5%
+                
+                // 计算组合回报
+                const portfolioReturn = 
+                    (portfolio.stocks / 100) * stockReturn +
+                    (portfolio.bonds / 100) * bondReturn +
+                    (portfolio.cash / 100) * cashReturn;
+                
+                // 更新当前价值
+                currentValue *= (1 + portfolioReturn);
+                performanceData.push(currentValue);
+                
+                // 更新峰值和最大回撤
+                if (currentValue > peakValue) {
+                    peakValue = currentValue;
+                }
+                
+                const drawdown = (peakValue - currentValue) / peakValue;
+                if (drawdown > maxDrawdown) {
+                    maxDrawdown = drawdown;
+                }
+            }
+            
+            // 更新显示
+            finalValueEl.textContent = '¥' + currentValue.toFixed(2);
+            const returnRate = ((currentValue - initialInvestment) / initialInvestment * 100).toFixed(2);
+            returnRateEl.textContent = returnRate + '%';
+            maxDrawdownEl.textContent = (maxDrawdown * 100).toFixed(2) + '%';
+            
+            // 更新图表
+            updateChart();
+        }
+        
+        // 更新图表
+        function updateChart() {
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const months = ['初始'];
+            for (let i = 1; i <= 12; i++) {
+                months.push('第' + i + '月');
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: '投资组合价值',
+                        data: performanceData,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: '投资价值 (¥)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '时间'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '价值: ¥' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 重置配置
+        function resetPortfolio() {
+            sliders[0].value = 40;
+            sliders[1].value = 40;
+            sliders[2].value = 20;
+            updateDisplay();
+            
+            // 重置结果
+            finalValueEl.textContent = '¥10,000';
+            returnRateEl.textContent = '0%';
+            maxDrawdownEl.textContent = '0%';
+            
+            // 重置图表
+            performanceData = [initialInvestment];
+            updateChart();
+        }
+        
+        // 事件监听器
+        sliders.forEach(slider => {
+            slider.addEventListener('input', updateDisplay);
+        });
+        
+        simulateBtn.addEventListener('click', simulateInvestment);
+        resetBtn.addEventListener('click', resetPortfolio);
+        
+        // 初始化
+        updateDisplay();
+        updateChart();
+    </script>
+</body>
+</html>
