@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>证券投资学教学仿真实验概述</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .intro {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .card-content {
+            padding: 20px;
+        }
+        
+        .card-content ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .card-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2a5298;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .platforms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .platform {
+            background-color: #f0f5ff;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #2a5298;
+            border: 1px solid #d0ddf5;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: #ff7e5f;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background-color: #ff6b4a;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>证券投资学教学仿真实验概述</h1>
+            <p class="subtitle">理论与实践深度融合，培养专业投资决策能力</p>
+        </header>
+        
+        <section class="intro">
+            <p>本仿真实验课程是《证券投资学》理论教学的重要实践环节，旨在通过高度仿真的证券市场环境，帮助学生将课堂所学的投资理论、工具分析方法与市场实际操作紧密结合，全面提升学生的投资决策能力、风险管理意识与团队协作素养。</p>
+        </section>
+        
+        <div class="card-container">
+            <div class="card">
+                <div class="card-header">实验目标</div>
+                <div class="card-content">
+                    <ul>
+                        <li>掌握证券投资的基本流程与操作技能</li>
+                        <li>熟悉股票、债券、基金、衍生品等主要投资工具的交易机制</li>
+                        <li>运用基本面分析、技术分析方法进行投资决策</li>
+                        <li>培养投资组合构建与风险管理能力</li>
+                        <li>树立合规投资理念，增强市场责任感</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">实验内容</div>
+                <div class="card-content">
+                    <ul>
+                        <li>证券交易模拟（股票、债券、基金、期权等）</li>
+                        <li>投资组合构建与绩效评估</li>
+                        <li>宏观经济与行业分析实践</li>
+                        <li>公司财务报表分析与估值建模</li>
+                        <li>技术分析工具与策略实战应用</li>
+                        <li>投资心理与行为金融的仿真体验</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <h3>特色与价值</h3>
+            <p>本实验课程不仅强化学生对证券市场的直观认知，更注重在"做中学"中培养其理性投资观念、系统思维与创新意识。通过模拟真实市场环境，学生能够在风险可控的情况下体验投资全过程，为未来从事投资、金融分析、资产管理等相关职业奠定扎实的实践基础。</p>
+        </div>
+        
+        <section class="cta-section">
+            <h2>开启您的投资学习之旅</h2>
+            <p>立即加入我们的仿真实验课程，体验真实市场环境，提升投资决策能力</p>   
+        </section>
+    </div>
+    
+    <footer>
+        <p>证券投资学教学研究中心 © 2023 | 理论与实践相结合，培养未来金融精英</p>
+    </footer>
+
+    <script>
+        // 添加卡片点击效果
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+        
+        // 添加平台标签点击效果
+        document.querySelectorAll('.platform').forEach(platform => {
+            platform.addEventListener('click', function() {
+                this.style.backgroundColor = '#2a5298';
+                this.style.color = 'white';
+                
+                // 重置其他平台标签
+                document.querySelectorAll('.platform').forEach(p => {
+                    if(p !== this) {
+                        p.style.backgroundColor = '#f0f5ff';
+                        p.style.color = '#2a5298';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
