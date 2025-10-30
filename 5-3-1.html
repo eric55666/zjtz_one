@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术分析大师模拟 - 证券投资学</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .game-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-section, .analysis-section, .trading-section, .feedback-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .chart-section {
+            grid-column: 1 / 3;
+        }
+        
+        h2 {
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .chart-container {
+            height: 400px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e1e4e8;
+        }
+        
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .analysis-tools {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .tool-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .tool-card h3 {
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .tool-card ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .tool-card button {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .signal-display {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .signal-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .signal-buy {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .signal-sell {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+        
+        .signal-neutral {
+            color: var(--warning-color);
+        }
+        
+        .trading-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .portfolio {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .portfolio-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .performance {
+            margin-top: 20px;
+        }
+        
+        .performance-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .positive {
+            color: var(--success-color);
+        }
+        
+        .negative {
+            color: var(--danger-color);
+        }
+        
+        .feedback-section {
+            grid-column: 1 / 3;
+            margin-top: 20px;
+        }
+        
+        .feedback-content {
+            display: none;
+        }
+        
+        .feedback-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        
+        .feedback-item h3 {
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .skill-meter {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .skill-level {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .improvement-tips {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .improvement-tips h3 {
+            color: var(--warning-color);
+            margin-bottom: 10px;
+        }
+        
+        .simulation-progress {
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .score-display {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .stock-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stock-item {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .stock-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .stock-item.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .debug-info {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-section {
+                grid-column: 1;
+            }
+            
+            .analysis-tools {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .stock-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .feedback-section {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>技术分析大师模拟</h1>
+            <p class="subtitle">综合模拟投资测试 · 技术分析优化投资组合 · 专业反馈总结</p>
+        </header>
+        
+        <div class="game-container">
+            <section class="chart-section">
+                <h2>多股票技术分析图表</h2>
+                <div class="chart-container">
+                    <canvas id="priceChart" class="chart-canvas"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <div>
+                        <button id="startSimulation" class="btn btn-primary">开始模拟</button>
+                        <button id="nextPeriod" class="btn btn-success" disabled>下一周期</button>
+                        <button id="applyStrategy" class="btn btn-warning" disabled>应用技术分析策略</button>
+                    </div>
+                    <div>
+                        <select id="timeframeSelect">
+                            <option value="daily">日线图</option>
+                            <option value="weekly">周线图</option>
+                            <option value="monthly">月线图</option>
+                        </select>
+                        <select id="stockSelect">
+                            <option value="stockA">科技股A</option>
+                            <option value="stockB">金融股B</option>
+                            <option value="stockC">消费股C</option>
+                            <option value="stockD">医药股D</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="debug-info" id="debugInfo">
+                    等待开始模拟...
+                </div>
+            </section>
+            
+            <section class="analysis-section">
+                <h2>技术分析工具</h2>
+                <div class="analysis-tools">
+                    <div class="tool-card">
+                        <h3>趋势分析</h3>
+                        <p>识别主要趋势方向</p>
+                        <ul>
+                            <li>道氏理论</li>
+                            <li>移动平均线</li>
+                            <li>趋势线分析</li>
+                        </ul>
+                        <button id="applyTrendAnalysis" class="btn btn-primary">应用趋势分析</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h3>形态识别</h3>
+                        <p>识别关键价格形态</p>
+                        <ul>
+                            <li>头肩顶/底</li>
+                            <li>双顶/双底</li>
+                            <li>三角形整理</li>
+                        </ul>
+                        <button id="applyPatternRecognition" class="btn btn-primary">应用形态识别</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h3>指标分析</h3>
+                        <p>应用技术指标</p>
+                        <ul>
+                            <li>RSI相对强弱指数</li>
+                            <li>MACD指标</li>
+                            <li>布林带</li>
+                        </ul>
+                        <button id="applyIndicatorAnalysis" class="btn btn-primary">应用指标分析</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h3>成交量分析</h3>
+                        <p>分析成交量与价格关系</p>
+                        <ul>
+                            <li>量价配合</li>
+                            <li>成交量形态</li>
+                            <li>资金流向</li>
+                        </ul>
+                        <button id="applyVolumeAnalysis" class="btn btn-primary">应用成交量分析</button>
+                    </div>
+                </div>
+                
+                <div class="signal-display">
+                    <h3>技术分析信号</h3>
+                    <div class="signal-item">
+                        <span>趋势分析:</span>
+                        <span id="trendSignal" class="signal-neutral">未分析</span>
+                    </div>
+                    <div class="signal-item">
+                        <span>形态识别:</span>
+                        <span id="patternSignal" class="signal-neutral">未分析</span>
+                    </div>
+                    <div class="signal-item">
+                        <span>指标分析:</span>
+                        <span id="indicatorSignal" class="signal-neutral">未分析</span>
+                    </div>
+                    <div class="signal-item">
+                        <span>成交量分析:</span>
+                        <span id="volumeSignal" class="signal-neutral">未分析</span>
+                    </div>
+                    <div class="signal-item">
+                        <span>综合评级:</span>
+                        <span id="overallRating" class="signal-neutral">未评级</span>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="trading-section">
+                <h2>投资组合管理</h2>
+                <div class="current-market">
+                    <h3>模拟周期: <span id="currentPeriod">0</span>/12</h3>
+                </div>
+                
+                <div class="trading-controls">
+                    <button id="buyStockA" class="btn btn-success">买入科技股A</button>
+                    <button id="buyStockB" class="btn btn-success">买入金融股B</button>
+                    <button id="buyStockC" class="btn btn-success">买入消费股C</button>
+                    <button id="buyStockD" class="btn btn-success">买入医药股D</button>
+                    <button id="rebalancePortfolio" class="btn btn-primary">优化投资组合</button>
+                </div>
+                
+                <div class="portfolio">
+                    <h3>投资组合</h3>
+                    <div class="portfolio-item">
+                        <span>现金:</span>
+                        <span id="cashAmount">100000.00</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>科技股A:</span>
+                        <span id="stockAAmount">0</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>金融股B:</span>
+                        <span id="stockBAmount">0</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>消费股C:</span>
+                        <span id="stockCAmount">0</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>医药股D:</span>
+                        <span id="stockDAmount">0</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>总资产:</span>
+                        <span id="totalAssets">100000.00</span>
+                    </div>
+                </div>
+                
+                <div class="performance">
+                    <h3>投资表现</h3>
+                    <div class="performance-stats">
+                        <div class="stat-card">
+                            <div>总收益率</div>
+                            <div id="totalReturn" class="stat-value">0.00%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div>相对基准</div>
+                            <div id="vsBenchmark" class="stat-value">0.00%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div>夏普比率</div>
+                            <div id="sharpeRatio" class="stat-value">0.00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div>最大回撤</div>
+                            <div id="maxDrawdown" class="stat-value">0.00%</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="feedback-section">
+                <h2>技术分析能力评估</h2>
+                <div class="simulation-progress">
+                    <div>模拟进度</div>
+                    <div class="progress-bar">
+                        <div id="progress" class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div id="finalFeedback" class="feedback-content">
+                    <h2>模拟投资总结报告</h2>
+                    
+                    <div class="feedback-item">
+                        <h3>技术分析能力评估</h3>
+                        <div>趋势分析能力</div>
+                        <div class="skill-meter">
+                            <div id="trendSkill" class="skill-level" style="width: 0%"></div>
+                        </div>
+                        
+                        <div>形态识别能力</div>
+                        <div class="skill-meter">
+                            <div id="patternSkill" class="skill-level" style="width: 0%"></div>
+                        </div>
+                        
+                        <div>指标应用能力</div>
+                        <div class="skill-meter">
+                            <div id="indicatorSkill" class="skill-level" style="width: 0%"></div>
+                        </div>
+                        
+                        <div>风险控制能力</div>
+                        <div class="skill-meter">
+                            <div id="riskSkill" class="skill-level" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="feedback-item">
+                        <h3>投资表现分析</h3>
+                        <p id="performanceAnalysis">等待模拟完成...</p>
+                    </div>
+                    
+                    <div class="feedback-item">
+                        <h3>技术分析策略有效性</h3>
+                        <p id="strategyEffectiveness">等待模拟完成...</p>
+                    </div>
+                    
+                    <div class="improvement-tips">
+                        <h3>改进建议</h3>
+                        <ul id="improvementTips">
+                            <li>等待模拟完成...</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button id="restartSimulation" class="btn btn-primary">重新开始模拟</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <div class="score-display">
+            技术分析大师评分: <span id="masterScore">0</span>/100
+        </div>
+    </div>
+
+    <script>
+        // 初始化变量
+        let cash = 100000;
+        let stocks = {
+            stockA: { amount: 0, price: 100 },
+            stockB: { amount: 0, price: 80 },
+            stockC: { amount: 0, price: 120 },
+            stockD: { amount: 0, price: 90 }
+        };
+        
+        let currentPeriod = 0;
+        let totalPeriods = 12;
+        let simulationActive = false;
+        let stockData = {};
+        let tradeHistory = [];
+        let portfolioHistory = [100000];
+        let benchmarkHistory = [100000];
+        let analysisSkills = {
+            trend: 0,
+            pattern: 0,
+            indicator: 0,
+            risk: 0
+        };
+        
+        // 图表初始化
+        const canvas = document.getElementById('priceChart');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置Canvas尺寸
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            if (simulationActive) {
+                drawChart();
+            }
+        }
+        
+        // 生成随机股票数据
+        function generateStockData() {
+            const stockNames = ['stockA', 'stockB', 'stockC', 'stockD'];
+            const data = {};
+            
+            stockNames.forEach(stock => {
+                data[stock] = [];
+                let price = stocks[stock].price;
+                
+                // 生成12个周期的价格数据
+                for (let i = 0; i < totalPeriods; i++) {
+                    // 随机价格变动，但加入一些趋势
+                    const volatility = 0.05;
+                    const trend = (Math.random() - 0.5) * 0.02;
+                    price *= (1 + (Math.random() - 0.5) * volatility + trend);
+                    
+                    // 生成OHLC数据
+                    const open = i > 0 ? data[stock][i-1].close : price;
+                    const close = price;
+                    const high = Math.max(open, close) * (1 + Math.random() * 0.03);
+                    const low = Math.min(open, close) * (1 - Math.random() * 0.03);
+                    
+                    data[stock].push({
+                        open: open,
+                        high: high,
+                        low: low,
+                        close: close,
+                        volume: Math.floor(Math.random() * 10000) + 1000
+                    });
+                }
+            });
+            
+            return data;
+        }
+        
+        // 绘制股票图表
+        function drawChart() {
+            if (!stockData.stockA || currentPeriod === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#999';
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('请点击"开始模拟"生成图表数据', canvas.width/2, canvas.height/2);
+                return;
+            }
+            
+            const selectedStock = document.getElementById('stockSelect').value;
+            const data = stockData[selectedStock].slice(0, currentPeriod);
+            
+            if (data.length === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#999';
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('暂无数据，请进入下一周期', canvas.width/2, canvas.height/2);
+                return;
+            }
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 计算价格范围
+            let maxPrice = Math.max(...data.map(d => d.high));
+            let minPrice = Math.min(...data.map(d => d.low));
+            
+            // 确保价格范围不为零
+            if (maxPrice === minPrice) {
+                maxPrice = minPrice * 1.1;
+                minPrice = minPrice * 0.9;
+            }
+            
+            const priceRange = maxPrice - minPrice;
+            
+            // 设置边距
+            const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+            const chartWidth = canvas.width - margin.left - margin.right;
+            const chartHeight = canvas.height - margin.top - margin.bottom;
+            
+            // 绘制坐标轴
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, margin.top + chartHeight);
+            ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
+            ctx.stroke();
+            
+            // 绘制K线
+            const barWidth = Math.max(3, chartWidth / data.length * 0.7);
+            
+            for (let i = 0; i < data.length; i++) {
+                const candle = data[i];
+                const x = margin.left + (i / (data.length - 1)) * chartWidth;
+                const openY = margin.top + chartHeight - ((candle.open - minPrice) / priceRange) * chartHeight;
+                const closeY = margin.top + chartHeight - ((candle.close - minPrice) / priceRange) * chartHeight;
+                const highY = margin.top + chartHeight - ((candle.high - minPrice) / priceRange) * chartHeight;
+                const lowY = margin.top + chartHeight - ((candle.low - minPrice) / priceRange) * chartHeight;
+                
+                // 确定颜色
+                ctx.strokeStyle = candle.close >= candle.open ? '#e74c3c' : '#2ecc71';
+                ctx.fillStyle = candle.close >= candle.open ? '#e74c3c' : '#2ecc71';
+                
+                // 绘制影线
+                ctx.beginPath();
+                ctx.moveTo(x, highY);
+                ctx.lineTo(x, lowY);
+                ctx.stroke();
+                
+                // 绘制实体
+                const bodyTop = Math.min(openY, closeY);
+                const bodyHeight = Math.abs(openY - closeY);
+                
+                if (bodyHeight > 0) {
+                    ctx.fillRect(x - barWidth/2, bodyTop, barWidth, bodyHeight);
+                } else {
+                    // 十字线
+                    ctx.beginPath();
+                    ctx.moveTo(x - barWidth/2, openY);
+                    ctx.lineTo(x + barWidth/2, openY);
+                    ctx.stroke();
+                }
+            }
+            
+            // 添加价格标签
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(maxPrice.toFixed(2), margin.left - 5, margin.top + 10);
+            ctx.fillText(minPrice.toFixed(2), margin.left - 5, margin.top + chartHeight - 5);
+            
+            // 添加时间标签
+            ctx.textAlign = 'center';
+            ctx.fillText('时间', margin.left + chartWidth / 2, margin.top + chartHeight + 20);
+            
+            // 更新调试信息
+            document.getElementById('debugInfo').innerHTML = 
+                `当前股票: ${selectedStock} | 数据点: ${data.length} | 价格范围: ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`;
+        }
+        
+        // 更新投资组合显示
+        function updatePortfolio() {
+            document.getElementById('cashAmount').textContent = cash.toFixed(2);
+            document.getElementById('stockAAmount').textContent = stocks.stockA.amount;
+            document.getElementById('stockBAmount').textContent = stocks.stockB.amount;
+            document.getElementById('stockCAmount').textContent = stocks.stockC.amount;
+            document.getElementById('stockDAmount').textContent = stocks.stockD.amount;
+            
+            // 更新股票价格
+            if (currentPeriod > 0 && stockData.stockA) {
+                stocks.stockA.price = stockData.stockA[currentPeriod-1].close;
+                stocks.stockB.price = stockData.stockB[currentPeriod-1].close;
+                stocks.stockC.price = stockData.stockC[currentPeriod-1].close;
+                stocks.stockD.price = stockData.stockD[currentPeriod-1].close;
+            }
+            
+            const totalValue = cash + 
+                stocks.stockA.amount * stocks.stockA.price + 
+                stocks.stockB.amount * stocks.stockB.price + 
+                stocks.stockC.amount * stocks.stockC.price + 
+                stocks.stockD.amount * stocks.stockD.price;
+            
+            document.getElementById('totalAssets').textContent = totalValue.toFixed(2);
+            
+            // 更新投资表现
+            updatePerformance(totalValue);
+            
+            // 记录投资组合历史
+            portfolioHistory.push(totalValue);
+            
+            // 更新基准（等权重投资组合）
+            if (currentPeriod > 0) {
+                const benchmarkReturn = 1 + (
+                    (stockData.stockA[currentPeriod-1].close / stockData.stockA[0].close - 1) +
+                    (stockData.stockB[currentPeriod-1].close / stockData.stockB[0].close - 1) +
+                    (stockData.stockC[currentPeriod-1].close / stockData.stockC[0].close - 1) +
+                    (stockData.stockD[currentPeriod-1].close / stockData.stockD[0].close - 1)
+                ) / 4;
+                
+                benchmarkHistory.push(100000 * benchmarkReturn);
+            }
+        }
+        
+        // 更新投资表现
+        function updatePerformance(totalValue) {
+            const initialCapital = 100000;
+            const totalReturn = ((totalValue - initialCapital) / initialCapital * 100).toFixed(2);
+            document.getElementById('totalReturn').textContent = totalReturn + '%';
+            document.getElementById('totalReturn').className = 'stat-value ' + (parseFloat(totalReturn) >= 0 ? 'positive' : 'negative');
+            
+            // 相对基准表现
+            const benchmarkValue = benchmarkHistory[benchmarkHistory.length - 1];
+            const vsBenchmark = ((totalValue - benchmarkValue) / benchmarkValue * 100).toFixed(2);
+            document.getElementById('vsBenchmark').textContent = vsBenchmark + '%';
+            document.getElementById('vsBenchmark').className = 'stat-value ' + (parseFloat(vsBenchmark) >= 0 ? 'positive' : 'negative');
+            
+            // 夏普比率（简化计算）
+            const returns = portfolioHistory.map((val, i) => i > 0 ? (val - portfolioHistory[i-1]) / portfolioHistory[i-1] : 0);
+            const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
+            const volatility = Math.sqrt(returns.reduce((a, b) => a + Math.pow(b - avgReturn, 2), 0) / returns.length);
+            const sharpeRatio = volatility > 0 ? (avgReturn / volatility * Math.sqrt(12)).toFixed(2) : 0;
+            document.getElementById('sharpeRatio').textContent = sharpeRatio;
+            
+            // 最大回撤
+            let peak = initialCapital;
+            let maxDrawdown = 0;
+            
+            for (let value of portfolioHistory) {
+                if (value > peak) peak = value;
+                const drawdown = (peak - value) / peak;
+                if (drawdown > maxDrawdown) maxDrawdown = drawdown;
+            }
+            
+            document.getElementById('maxDrawdown').textContent = (maxDrawdown * 100).toFixed(2) + '%';
+        }
+        
+        // 应用趋势分析
+        function applyTrendAnalysis() {
+            const selectedStock = document.getElementById('stockSelect').value;
+            const data = stockData[selectedStock].slice(0, currentPeriod);
+            
+            if (data.length < 5) {
+                document.getElementById('trendSignal').textContent = '数据不足';
+                document.getElementById('trendSignal').className = 'signal-neutral';
+                return;
+            }
+            
+            // 简化的趋势分析
+            const recentPrices = data.slice(-5).map(d => d.close);
+            const earlyPrices = data.slice(-10, -5).map(d => d.close);
+            
+            const recentAvg = recentPrices.reduce((a, b) => a + b, 0) / recentPrices.length;
+            const earlyAvg = earlyPrices.reduce((a, b) => a + b, 0) / earlyPrices.length;
+            
+            if (recentAvg > earlyAvg * 1.02) {
+                document.getElementById('trendSignal').textContent = '上升趋势';
+                document.getElementById('trendSignal').className = 'signal-buy';
+                analysisSkills.trend += 10;
+            } else if (recentAvg < earlyAvg * 0.98) {
+                document.getElementById('trendSignal').textContent = '下降趋势';
+                document.getElementById('trendSignal').className = 'signal-sell';
+                analysisSkills.trend += 10;
+            } else {
+                document.getElementById('trendSignal').textContent = '横盘整理';
+                document.getElementById('trendSignal').className = 'signal-neutral';
+                analysisSkills.trend += 5;
+            }
+            
+            updateOverallRating();
+        }
+        
+        // 应用形态识别
+        function applyPatternRecognition() {
+            const selectedStock = document.getElementById('stockSelect').value;
+            const data = stockData[selectedStock].slice(0, currentPeriod);
+            
+            if (data.length < 10) {
+                document.getElementById('patternSignal').textContent = '数据不足';
+                document.getElementById('patternSignal').className = 'signal-neutral';
+                return;
+            }
+            
+            // 简化的形态识别
+            const recentHighs = data.slice(-10).map(d => d.high);
+            const recentLows = data.slice(-10).map(d => d.low);
+            
+            const maxHigh = Math.max(...recentHighs);
+            const minLow = Math.min(...recentLows);
+            const currentPrice = data[data.length-1].close;
+            
+            // 检查双顶形态
+            const highCount = recentHighs.filter(h => h > maxHigh * 0.95).length;
+            
+            if (highCount >= 2 && currentPrice < maxHigh * 0.9) {
+                document.getElementById('patternSignal').textContent = '双顶形态，卖出';
+                document.getElementById('patternSignal').className = 'signal-sell';
+                analysisSkills.pattern += 10;
+            }
+            // 检查双底形态
+            else if (recentLows.filter(l => l < minLow * 1.05).length >= 2 && currentPrice > minLow * 1.1) {
+                document.getElementById('patternSignal').textContent = '双底形态，买入';
+                document.getElementById('patternSignal').className = 'signal-buy';
+                analysisSkills.pattern += 10;
+            }
+            else {
+                document.getElementById('patternSignal').textContent = '无明确形态';
+                document.getElementById('patternSignal').className = 'signal-neutral';
+                analysisSkills.pattern += 5;
+            }
+            
+            updateOverallRating();
+        }
+        
+        // 应用指标分析
+        function applyIndicatorAnalysis() {
+            const selectedStock = document.getElementById('stockSelect').value;
+            const data = stockData[selectedStock].slice(0, currentPeriod);
+            
+            if (data.length < 14) {
+                document.getElementById('indicatorSignal').textContent = '数据不足';
+                document.getElementById('indicatorSignal').className = 'signal-neutral';
+                return;
+            }
+            
+            // 简化的RSI计算
+            let gains = 0;
+            let losses = 0;
+            
+            for (let i = 1; i < 15 && i < data.length; i++) {
+                const change = data[data.length-i].close - data[data.length-i-1].close;
+                if (change > 0) {
+                    gains += change;
+                } else {
+                    losses -= change;
+                }
+            }
+            
+            const avgGain = gains / 14;
+            const avgLoss = losses / 14;
+            const rs = avgLoss > 0 ? avgGain / avgLoss : 100;
+            const rsi = 100 - (100 / (1 + rs));
+            
+            // 基于RSI判断
+            if (rsi < 30) {
+                document.getElementById('indicatorSignal').textContent = '超卖区域，买入';
+                document.getElementById('indicatorSignal').className = 'signal-buy';
+                analysisSkills.indicator += 10;
+            } else if (rsi > 70) {
+                document.getElementById('indicatorSignal').textContent = '超买区域，卖出';
+                document.getElementById('indicatorSignal').className = 'signal-sell';
+                analysisSkills.indicator += 10;
+            } else {
+                document.getElementById('indicatorSignal').textContent = '中性区域';
+                document.getElementById('indicatorSignal').className = 'signal-neutral';
+                analysisSkills.indicator += 5;
+            }
+            
+            updateOverallRating();
+        }
+        
+        // 应用成交量分析
+        function applyVolumeAnalysis() {
+            const selectedStock = document.getElementById('stockSelect').value;
+            const data = stockData[selectedStock].slice(0, currentPeriod);
+            
+            if (data.length < 5) {
+                document.getElementById('volumeSignal').textContent = '数据不足';
+                document.getElementById('volumeSignal').className = 'signal-neutral';
+                return;
+            }
+            
+            // 简化的成交量分析
+            const recentVolumes = data.slice(-5).map(d => d.volume);
+            const earlyVolumes = data.slice(-10, -5).map(d => d.volume);
+            
+            const recentAvgVolume = recentVolumes.reduce((a, b) => a + b, 0) / recentVolumes.length;
+            const earlyAvgVolume = earlyVolumes.reduce((a, b) => a + b, 0) / earlyVolumes.length;
+            const priceChange = (data[data.length-1].close - data[data.length-2].close) / data[data.length-2].close;
+            
+            if (recentAvgVolume > earlyAvgVolume * 1.2 && priceChange > 0) {
+                document.getElementById('volumeSignal').textContent = '放量上涨，买入';
+                document.getElementById('volumeSignal').className = 'signal-buy';
+                analysisSkills.risk += 10;
+            } else if (recentAvgVolume > earlyAvgVolume * 1.2 && priceChange < 0) {
+                document.getElementById('volumeSignal').textContent = '放量下跌，卖出';
+                document.getElementById('volumeSignal').className = 'signal-sell';
+                analysisSkills.risk += 10;
+            } else {
+                document.getElementById('volumeSignal').textContent = '量价关系正常';
+                document.getElementById('volumeSignal').className = 'signal-neutral';
+                analysisSkills.risk += 5;
+            }
+            
+            updateOverallRating();
+        }
+        
+        // 更新综合评级
+        function updateOverallRating() {
+            const buySignals = [
+                document.getElementById('trendSignal'),
+                document.getElementById('patternSignal'),
+                document.getElementById('indicatorSignal'),
+                document.getElementById('volumeSignal')
+            ].filter(el => el.className.includes('buy')).length;
+            
+            const sellSignals = [
+                document.getElementById('trendSignal'),
+                document.getElementById('patternSignal'),
+                document.getElementById('indicatorSignal'),
+                document.getElementById('volumeSignal')
+            ].filter(el => el.className.includes('sell')).length;
+            
+            if (buySignals >= 3) {
+                document.getElementById('overallRating').textContent = '强烈买入';
+                document.getElementById('overallRating').className = 'signal-buy';
+            } else if (sellSignals >= 3) {
+                document.getElementById('overallRating').textContent = '强烈卖出';
+                document.getElementById('overallRating').className = 'signal-sell';
+            } else if (buySignals > sellSignals) {
+                document.getElementById('overallRating').textContent = '温和买入';
+                document.getElementById('overallRating').className = 'signal-buy';
+            } else if (sellSignals > buySignals) {
+                document.getElementById('overallRating').textContent = '温和卖出';
+                document.getElementById('overallRating').className = 'signal-sell';
+            } else {
+                document.getElementById('overallRating').textContent = '中性观望';
+                document.getElementById('overallRating').className = 'signal-neutral';
+            }
+        }
+        
+        // 买入股票
+        function buyStock(stock) {
+            if (cash >= stocks[stock].price) {
+                stocks[stock].amount += 1;
+                cash -= stocks[stock].price;
+                tradeHistory.push({
+                    type: 'buy',
+                    stock: stock,
+                    price: stocks[stock].price,
+                    period: currentPeriod
+                });
+                updatePortfolio();
+            }
+        }
+        
+        // 优化投资组合
+        function rebalancePortfolio() {
+            // 简化的投资组合优化
+            // 基于技术分析信号调整仓位
+            
+            const signals = {
+                stockA: document.getElementById('overallRating').className.includes('buy') ? 1 : 
+                         document.getElementById('overallRating').className.includes('sell') ? -1 : 0,
+                stockB: document.getElementById('overallRating').className.includes('buy') ? 1 : 
+                         document.getElementById('overallRating').className.includes('sell') ? -1 : 0,
+                stockC: document.getElementById('overallRating').className.includes('buy') ? 1 : 
+                         document.getElementById('overallRating').className.includes('sell') ? -1 : 0,
+                stockD: document.getElementById('overallRating').className.includes('buy') ? 1 : 
+                         document.getElementById('overallRating').className.includes('sell') ? -1 : 0
+            };
+            
+            // 根据信号调整仓位
+            Object.keys(signals).forEach(stock => {
+                if (signals[stock] > 0 && cash >= stocks[stock].price) {
+                    // 买入信号，增加仓位
+                    const sharesToBuy = Math.floor(cash * 0.1 / stocks[stock].price);
+                    stocks[stock].amount += sharesToBuy;
+                    cash -= sharesToBuy * stocks[stock].price;
+                } else if (signals[stock] < 0 && stocks[stock].amount > 0) {
+                    // 卖出信号，减少仓位
+                    const sharesToSell = Math.floor(stocks[stock].amount * 0.2);
+                    stocks[stock].amount -= sharesToSell;
+                    cash += sharesToSell * stocks[stock].price;
+                }
+            });
+            
+            updatePortfolio();
+            analysisSkills.risk += 5;
+        }
+        
+        // 生成最终反馈
+        function generateFinalFeedback() {
+            const totalValue = cash + 
+                stocks.stockA.amount * stocks.stockA.price + 
+                stocks.stockB.amount * stocks.stockB.price + 
+                stocks.stockC.amount * stocks.stockC.price + 
+                stocks.stockD.amount * stocks.stockD.price;
+            
+            const totalReturn = ((totalValue - 100000) / 100000 * 100).toFixed(2);
+            const benchmarkValue = benchmarkHistory[benchmarkHistory.length - 1];
+            const vsBenchmark = ((totalValue - benchmarkValue) / benchmarkValue * 100).toFixed(2);
+            
+            // 计算技术分析大师评分
+            const skillScore = (analysisSkills.trend + analysisSkills.pattern + analysisSkills.indicator + analysisSkills.risk) / 4;
+            const performanceScore = parseFloat(totalReturn) > 0 ? 70 : 30;
+            const benchmarkScore = parseFloat(vsBenchmark) > 0 ? 20 : 0;
+            const masterScore = Math.min(100, skillScore + performanceScore + benchmarkScore);
+            
+            document.getElementById('masterScore').textContent = masterScore.toFixed(0);
+            
+            // 更新技能条
+            document.getElementById('trendSkill').style.width = analysisSkills.trend + '%';
+            document.getElementById('patternSkill').style.width = analysisSkills.pattern + '%';
+            document.getElementById('indicatorSkill').style.width = analysisSkills.indicator + '%';
+            document.getElementById('riskSkill').style.width = analysisSkills.risk + '%';
+            
+            // 更新投资表现分析
+            document.getElementById('performanceAnalysis').innerHTML = `
+                <p>您的总投资收益率为 <strong>${totalReturn}%</strong>，${parseFloat(totalReturn) >= 0 ? '实现了正收益' : '出现了亏损'}。</p>
+                <p>相对于等权重基准投资组合，您的表现${parseFloat(vsBenchmark) >= 0 ? '优于' : '落后于'}基准 <strong>${Math.abs(parseFloat(vsBenchmark)).toFixed(2)}%</strong>。</p>
+                <p>您共执行了 <strong>${tradeHistory.length}</strong> 次交易，平均每${(totalPeriods / tradeHistory.length).toFixed(1)}个周期交易一次。</p>
+            `;
+            
+            // 更新策略有效性分析
+            let strategyEffectiveness = '';
+            if (parseFloat(totalReturn) > 10) {
+                strategyEffectiveness = '您的技术分析策略非常有效，成功捕捉了市场机会并实现了显著超额收益。';
+            } else if (parseFloat(totalReturn) > 0) {
+                strategyEffectiveness = '您的技术分析策略基本有效，实现了正收益但超额收益有限。';
+            } else {
+                strategyEffectiveness = '您的技术分析策略效果不佳，未能有效指导投资决策，可能需要调整分析方法。';
+            }
+            
+            document.getElementById('strategyEffectiveness').textContent = strategyEffectiveness;
+            
+            // 生成改进建议
+            const tips = [];
+            
+            if (analysisSkills.trend < 50) {
+                tips.push('加强趋势分析能力，学习识别主要趋势、次要趋势和日常波动的区别');
+            }
+            
+            if (analysisSkills.pattern < 50) {
+                tips.push('提高形态识别能力，重点掌握头肩顶/底、双顶/底等关键反转形态');
+            }
+            
+            if (analysisSkills.indicator < 50) {
+                tips.push('深化技术指标理解，学习RSI、MACD、布林带等指标的综合应用');
+            }
+            
+            if (analysisSkills.risk < 50) {
+                tips.push('加强风险控制意识，建立明确的止损止盈策略');
+            }
+            
+            if (tradeHistory.length < 5) {
+                tips.push('增加交易频率，技术分析需要通过实践来验证和优化');
+            } else if (tradeHistory.length > 20) {
+                tips.push('适当减少交易频率，避免过度交易导致的交易成本增加');
+            }
+            
+            if (parseFloat(totalReturn) < 0) {
+                tips.push('考虑结合基本面分析，技术分析并非万能，需要多角度验证');
+            }
+            
+            const tipsList = document.getElementById('improvementTips');
+            tipsList.innerHTML = '';
+            tips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                tipsList.appendChild(li);
+            });
+            
+            // 显示反馈内容
+            document.getElementById('finalFeedback').style.display = 'block';
+        }
+        
+        // 事件监听器
+        document.getElementById('startSimulation').addEventListener('click', function() {
+            stockData = generateStockData();
+            currentPeriod = 1;
+            simulationActive = true;
+            
+            document.getElementById('nextPeriod').disabled = false;
+            document.getElementById('applyStrategy').disabled = false;
+            document.getElementById('startSimulation').disabled = true;
+            
+            updatePortfolio();
+            drawChart();
+            document.getElementById('currentPeriod').textContent = currentPeriod;
+            document.getElementById('progress').style.width = (currentPeriod / totalPeriods * 100) + '%';
+            
+            document.getElementById('debugInfo').innerHTML = 
+                `模拟已开始! 已生成4只股票各${totalPeriods}个周期的数据。当前周期: ${currentPeriod}`;
+        });
+        
+        document.getElementById('nextPeriod').addEventListener('click', function() {
+            if (currentPeriod < totalPeriods) {
+                currentPeriod++;
+                document.getElementById('currentPeriod').textContent = currentPeriod;
+                document.getElementById('progress').style.width = (currentPeriod / totalPeriods * 100) + '%';
+                
+                updatePortfolio();
+                drawChart();
+                
+                if (currentPeriod === totalPeriods) {
+                    generateFinalFeedback();
+                    document.getElementById('nextPeriod').disabled = true;
+                    document.getElementById('debugInfo').innerHTML += '<br>模拟已完成! 请查看最终评估报告。';
+                }
+            }
+        });
+        
+        document.getElementById('applyStrategy').addEventListener('click', function() {
+            applyTrendAnalysis();
+            applyPatternRecognition();
+            applyIndicatorAnalysis();
+            applyVolumeAnalysis();
+            rebalancePortfolio();
+            
+            document.getElementById('debugInfo').innerHTML += '<br>已应用技术分析策略并重新平衡投资组合。';
+        });
+        
+        document.getElementById('applyTrendAnalysis').addEventListener('click', applyTrendAnalysis);
+        document.getElementById('applyPatternRecognition').addEventListener('click', applyPatternRecognition);
+        document.getElementById('applyIndicatorAnalysis').addEventListener('click', applyIndicatorAnalysis);
+        document.getElementById('applyVolumeAnalysis').addEventListener('click', applyVolumeAnalysis);
+        
+        document.getElementById('buyStockA').addEventListener('click', () => buyStock('stockA'));
+        document.getElementById('buyStockB').addEventListener('click', () => buyStock('stockB'));
+        document.getElementById('buyStockC').addEventListener('click', () => buyStock('stockC'));
+        document.getElementById('buyStockD').addEventListener('click', () => buyStock('stockD'));
+        
+        document.getElementById('rebalancePortfolio').addEventListener('click', rebalancePortfolio);
+        
+        document.getElementById('restartSimulation').addEventListener('click', function() {
+            location.reload();
+        });
+        
+        document.getElementById('stockSelect').addEventListener('change', drawChart);
+        
+        // 初始化和调整Canvas大小
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        updatePortfolio();
+    </script>
+</body>
+</html>
