@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术分析入门挑战 - 证券投资学</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-section, .theory-section, .trading-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .chart-section {
+            grid-column: 1 / 3;
+        }
+        
+        h2 {
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .chart-container {
+            height: 400px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e1e4e8;
+        }
+        
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .theory-content {
+            margin-bottom: 20px;
+        }
+        
+        .assumption-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .limitation-card {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .quiz-container {
+            margin-top: 20px;
+        }
+        
+        .question {
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #e9ecef;
+        }
+        
+        .option.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .trading-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .portfolio {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .portfolio-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .feedback.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .feedback.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .score-display {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-section {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>技术分析入门挑战</h1>
+            <p class="subtitle">识别图表模式 · 理解技术分析假设 · 模拟交易决策</p>
+        </header>
+        
+        <div class="game-container">
+            <section class="chart-section">
+                <h2>图表分析挑战</h2>
+                <div class="chart-container">
+                    <canvas id="priceChart" class="chart-canvas"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <div>
+                        <button id="generateChart" class="btn btn-primary">生成新图表</button>
+                        <button id="identifyPattern" class="btn btn-warning">识别模式</button>
+                    </div>
+                    <div>
+                        <select id="patternSelect">
+                            <option value="">-- 选择价格模式 --</option>
+                            <option value="uptrend">上升趋势</option>
+                            <option value="downtrend">下降趋势</option>
+                            <option value="head_shoulders">头肩顶</option>
+                            <option value="double_top">双顶</option>
+                            <option value="double_bottom">双底</option>
+                            <option value="triangle">三角形整理</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="patternFeedback" class="feedback"></div>
+            </section>
+            
+            <section class="theory-section">
+                <h2>技术分析三大假设</h2>
+                <div class="theory-content">
+                    <div class="assumption-card">
+                        <h3>假设一：市场行为包容消化一切信息</h3>
+                        <p>技术分析认为所有影响价格的因素（经济、政治、心理等）都已反映在价格走势中，因此只需研究价格图表即可。</p>
+                    </div>
+                    <div class="assumption-card">
+                        <h3>假设二：价格以趋势方式演变</h3>
+                        <p>价格运动不是随机的，而是沿着趋势方向运动。趋势一旦形成，倾向于继续而非反转。</p>
+                    </div>
+                    <div class="assumption-card">
+                        <h3>假设三：历史会重演</h3>
+                        <p>市场参与者的心理和行为模式会重复出现，导致相似的图表形态产生相似的价格走势。</p>
+                    </div>
+                </div>
+                
+                <h2>技术分析的局限性</h2>
+                <div class="limitation-card">
+                    <p>技术分析并非完美，存在以下局限性：</p>
+                    <ul>
+                        <li>滞后性：技术指标通常基于历史数据，存在一定滞后</li>
+                        <li>主观性：不同分析师可能对同一图表得出不同结论</li>
+                        <li>自我实现预言：当大量交易者使用相同技术指标时可能产生</li>
+                        <li>无法预测突发事件：如政策突变、自然灾害等</li>
+                    </ul>
+                </div>
+                
+                <div class="quiz-container">
+                    <h2>知识测验</h2>
+                    <div class="question">1. 以下哪项不属于技术分析的基本假设？</div>
+                    <div class="options">
+                        <div class="option" data-correct="false">A. 市场行为包容消化一切信息</div>
+                        <div class="option" data-correct="false">B. 价格以趋势方式演变</div>
+                        <div class="option" data-correct="true">C. 市场总是有效的</div>
+                        <div class="option" data-correct="false">D. 历史会重演</div>
+                    </div>
+                    
+                    <div class="question" style="margin-top: 20px;">2. 技术分析的主要研究对象是什么？</div>
+                    <div class="options">
+                        <div class="option" data-correct="false">A. 公司财务报表</div>
+                        <div class="option" data-correct="false">B. 宏观经济指标</div>
+                        <div class="option" data-correct="true">C. 价格和成交量图表</div>
+                        <div class="option" data-correct="false">D. 行业竞争格局</div>
+                    </div>
+                    
+                    <button id="checkQuiz" class="btn btn-primary" style="margin-top: 20px;">检查答案</button>
+                    <div id="quizFeedback" class="feedback"></div>
+                </div>
+            </section>
+            
+            <section class="trading-section">
+                <h2>简单交易模拟</h2>
+                <div class="current-price">
+                    <h3>当前价格: <span id="currentPrice">100.00</span></h3>
+                </div>
+                
+                <div class="trading-controls">
+                    <button id="buyBtn" class="btn btn-success">买入</button>
+                    <button id="sellBtn" class="btn btn-danger">卖出</button>
+                    <button id="nextDay" class="btn btn-primary">下一交易日</button>
+                </div>
+                
+                <div class="portfolio">
+                    <h3>投资组合</h3>
+                    <div class="portfolio-item">
+                        <span>现金:</span>
+                        <span id="cashAmount">10000.00</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>持股数量:</span>
+                        <span id="stockAmount">0</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>持股价值:</span>
+                        <span id="stockValue">0.00</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>总资产:</span>
+                        <span id="totalAssets">10000.00</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>交易历史:</span>
+                        <span id="tradeHistory">无</span>
+                    </div>
+                </div>
+                
+                <div class="trading-tips">
+                    <h3>交易提示</h3>
+                    <p>尝试运用技术分析知识进行交易决策：</p>
+                    <ul>
+                        <li>识别图表中的支撑位和阻力位</li>
+                        <li>观察价格是否突破关键水平</li>
+                        <li>注意成交量变化与价格走势的关系</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+        
+        <div class="score-display">
+            挑战得分: <span id="score">0</span> / 100
+        </div>
+    </div>
+
+    <script>
+        // 初始化变量
+        let score = 0;
+        let cash = 10000;
+        let stockAmount = 0;
+        let currentPrice = 100;
+        let tradeHistory = [];
+        let chartData = [];
+        let currentPattern = '';
+        
+        // 图表初始化
+        const canvas = document.getElementById('priceChart');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置Canvas尺寸
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            drawChart();
+        }
+        
+        // 生成随机价格数据
+        function generatePriceData(pattern = 'random') {
+            const data = [];
+            let price = 100;
+            const volatility = 2;
+            
+            // 根据模式生成不同的价格走势
+            switch(pattern) {
+                case 'uptrend':
+                    for (let i = 0; i < 50; i++) {
+                        price += (Math.random() - 0.3) * volatility;
+                        data.push(price);
+                    }
+                    currentPattern = 'uptrend';
+                    break;
+                case 'downtrend':
+                    for (let i = 0; i < 50; i++) {
+                        price += (Math.random() - 0.7) * volatility;
+                        data.push(price);
+                    }
+                    currentPattern = 'downtrend';
+                    break;
+                case 'head_shoulders':
+                    // 简化的头肩顶模式
+                    for (let i = 0; i < 20; i++) {
+                        price += (Math.random() - 0.3) * volatility;
+                        data.push(price);
+                    }
+                    for (let i = 0; i < 10; i++) {
+                        price += (Math.random() - 0.5) * volatility;
+                        data.push(price);
+                    }
+                    for (let i = 0; i < 20; i++) {
+                        price += (Math.random() - 0.7) * volatility;
+                        data.push(price);
+                    }
+                    currentPattern = 'head_shoulders';
+                    break;
+                case 'double_top':
+                    // 简化的双顶模式
+                    for (let i = 0; i < 25; i++) {
+                        price += (Math.random() - 0.3) * volatility;
+                        data.push(price);
+                    }
+                    for (let i = 0; i < 10; i++) {
+                        price += (Math.random() - 0.5) * volatility;
+                        data.push(price);
+                    }
+                    for (let i = 0; i < 15; i++) {
+                        price += (Math.random() - 0.7) * volatility;
+                        data.push(price);
+                    }
+                    currentPattern = 'double_top';
+                    break;
+                case 'double_bottom':
+                    // 简化的双底模式
+                    for (let i = 0; i < 25; i++) {
+                        price += (Math.random() - 0.7) * volatility;
+                        data.push(price);
+                    }
+                    for (let i = 0; i < 10; i++) {
+                        price += (Math.random() - 0.3) * volatility;
+                        data.push(price);
+                    }
+                    for (let i = 0; i < 15; i++) {
+                        price += (Math.random() - 0.1) * volatility;
+                        data.push(price);
+                    }
+                    currentPattern = 'double_bottom';
+                    break;
+                case 'triangle':
+                    // 简化的三角形整理模式
+                    let high = 110, low = 90;
+                    for (let i = 0; i < 50; i++) {
+                        price = low + (high - low) * (i / 50) + (Math.random() - 0.5) * volatility;
+                        data.push(price);
+                        high -= 0.2;
+                        low += 0.2;
+                    }
+                    currentPattern = 'triangle';
+                    break;
+                default:
+                    // 随机模式
+                    const patterns = ['uptrend', 'downtrend', 'head_shoulders', 'double_top', 'double_bottom', 'triangle'];
+                    const randomPattern = patterns[Math.floor(Math.random() * patterns.length)];
+                    return generatePriceData(randomPattern);
+            }
+            
+            return data;
+        }
+        
+        // 绘制价格图表
+        function drawChart() {
+            if (chartData.length === 0) {
+                chartData = generatePriceData();
+            }
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 计算价格范围
+            const maxPrice = Math.max(...chartData);
+            const minPrice = Math.min(...chartData);
+            const priceRange = maxPrice - minPrice;
+            
+            // 设置边距
+            const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+            const chartWidth = canvas.width - margin.left - margin.right;
+            const chartHeight = canvas.height - margin.top - margin.bottom;
+            
+            // 绘制坐标轴
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, margin.top + chartHeight);
+            ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
+            ctx.stroke();
+            
+            // 绘制价格线
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let i = 0; i < chartData.length; i++) {
+                const x = margin.left + (i / (chartData.length - 1)) * chartWidth;
+                const y = margin.top + chartHeight - ((chartData[i] - minPrice) / priceRange) * chartHeight;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // 绘制价格点
+            ctx.fillStyle = '#3498db';
+            for (let i = 0; i < chartData.length; i++) {
+                const x = margin.left + (i / (chartData.length - 1)) * chartWidth;
+                const y = margin.top + chartHeight - ((chartData[i] - minPrice) / priceRange) * chartHeight;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 添加价格标签
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(maxPrice.toFixed(2), margin.left - 5, margin.top + 10);
+            ctx.fillText(minPrice.toFixed(2), margin.left - 5, margin.top + chartHeight - 5);
+            
+            // 添加时间标签
+            ctx.textAlign = 'center';
+            ctx.fillText('时间', margin.left + chartWidth / 2, margin.top + chartHeight + 20);
+        }
+        
+        // 更新投资组合显示
+        function updatePortfolio() {
+            document.getElementById('cashAmount').textContent = cash.toFixed(2);
+            document.getElementById('stockAmount').textContent = stockAmount;
+            document.getElementById('stockValue').textContent = (stockAmount * currentPrice).toFixed(2);
+            document.getElementById('totalAssets').textContent = (cash + stockAmount * currentPrice).toFixed(2);
+            document.getElementById('currentPrice').textContent = currentPrice.toFixed(2);
+            
+            if (tradeHistory.length > 0) {
+                document.getElementById('tradeHistory').textContent = tradeHistory.slice(-3).join(', ');
+            } else {
+                document.getElementById('tradeHistory').textContent = '无';
+            }
+        }
+        
+        // 显示反馈信息
+        function showFeedback(elementId, message, isSuccess) {
+            const feedbackElement = document.getElementById(elementId);
+            feedbackElement.textContent = message;
+            feedbackElement.className = 'feedback ' + (isSuccess ? 'success' : 'error');
+            feedbackElement.style.display = 'block';
+            
+            setTimeout(() => {
+                feedbackElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 更新得分
+        function updateScore(points) {
+            score += points;
+            if (score < 0) score = 0;
+            document.getElementById('score').textContent = score;
+        }
+        
+        // 事件监听器
+        document.getElementById('generateChart').addEventListener('click', function() {
+            chartData = generatePriceData();
+            drawChart();
+            showFeedback('patternFeedback', '新图表已生成，请尝试识别价格模式！', true);
+        });
+        
+        document.getElementById('identifyPattern').addEventListener('click', function() {
+            const selectedPattern = document.getElementById('patternSelect').value;
+            
+            if (!selectedPattern) {
+                showFeedback('patternFeedback', '请先选择一个价格模式！', false);
+                return;
+            }
+            
+            if (selectedPattern === currentPattern) {
+                showFeedback('patternFeedback', '恭喜！您正确识别了价格模式！', true);
+                updateScore(10);
+            } else {
+                showFeedback('patternFeedback', '识别错误，请再试一次！', false);
+                updateScore(-5);
+            }
+        });
+        
+        document.getElementById('buyBtn').addEventListener('click', function() {
+            if (cash >= currentPrice) {
+                stockAmount += 1;
+                cash -= currentPrice;
+                tradeHistory.push(`买入@${currentPrice.toFixed(2)}`);
+                updatePortfolio();
+                showFeedback('patternFeedback', `成功买入1股，价格${currentPrice.toFixed(2)}`, true);
+            } else {
+                showFeedback('patternFeedback', '现金不足，无法购买！', false);
+            }
+        });
+        
+        document.getElementById('sellBtn').addEventListener('click', function() {
+            if (stockAmount > 0) {
+                stockAmount -= 1;
+                cash += currentPrice;
+                tradeHistory.push(`卖出@${currentPrice.toFixed(2)}`);
+                updatePortfolio();
+                showFeedback('patternFeedback', `成功卖出1股，价格${currentPrice.toFixed(2)}`, true);
+            } else {
+                showFeedback('patternFeedback', '没有股票可卖出！', false);
+            }
+        });
+        
+        document.getElementById('nextDay').addEventListener('click', function() {
+            // 模拟价格变化
+            const change = (Math.random() - 0.5) * 4;
+            currentPrice += change;
+            
+            // 添加到图表数据
+            if (chartData.length >= 50) {
+                chartData.shift();
+            }
+            chartData.push(currentPrice);
+            
+            drawChart();
+            updatePortfolio();
+            
+            // 随机给予技术分析提示
+            const tips = [
+                "注意价格是否突破了前期高点！",
+                "观察成交量是否配合价格走势！",
+                "当前价格接近支撑位，注意观察！",
+                "价格形成趋势线，关注突破方向！"
+            ];
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            
+            showFeedback('patternFeedback', `新交易日开始！价格变动: ${change > 0 ? '+' : ''}${change.toFixed(2)}。提示: ${randomTip}`, true);
+        });
+        
+        // 测验功能
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                // 移除同问题的其他选项的选中状态
+                const questionOptions = this.parentElement.querySelectorAll('.option');
+                questionOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // 选中当前选项
+                this.classList.add('selected');
+            });
+        });
+        
+        document.getElementById('checkQuiz').addEventListener('click', function() {
+            let correctAnswers = 0;
+            let totalQuestions = 0;
+            
+            document.querySelectorAll('.options').forEach(options => {
+                totalQuestions++;
+                const selectedOption = options.querySelector('.option.selected');
+                
+                if (selectedOption && selectedOption.getAttribute('data-correct') === 'true') {
+                    correctAnswers++;
+                }
+            });
+            
+            if (correctAnswers === totalQuestions) {
+                showFeedback('quizFeedback', '恭喜！所有答案都正确！', true);
+                updateScore(20);
+            } else {
+                showFeedback('quizFeedback', `答对了 ${correctAnswers} 题，共 ${totalQuestions} 题。请再试一次！`, false);
+            }
+        });
+        
+        // 初始化和调整Canvas大小
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        updatePortfolio();
+    </script>
+</body>
+</html>

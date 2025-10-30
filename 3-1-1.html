@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>证券市场探索 - 角色扮演与交易体验</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --institutional: #9b59b6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: var(--light);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .role-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .role-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .role-card.active {
+            border-color: var(--secondary);
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .role-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .role-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .role-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .market-selection {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .market-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--light);
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .market-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background: var(--accent);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: var(--light);
+        }
+        
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .market-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--secondary);
+            transition: transform 0.3s;
+        }
+        
+        .market-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .market-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .market-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .portfolio {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .portfolio-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .instructions {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .trade-history {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background: var(--light);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .history-item.buy {
+            border-left: 4px solid var(--success);
+        }
+        
+        .history-item.sell {
+            border-left: 4px solid var(--accent);
+        }
+        
+        .history-item.regulatory {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .timeline-item {
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            height: 100%;
+            width: 4px;
+            background: var(--secondary);
+        }
+        
+        .timeline-date {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .discussion-topic {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+        
+        .discussion-responses {
+            margin-top: 15px;
+        }
+        
+        .response {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .badge-investor {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .badge-issuer {
+            background: var(--success);
+            color: white;
+        }
+        
+        .badge-regulator {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .badge-broker {
+            background: var(--institutional);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .role-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>证券市场探索</h1>
+            <p class="subtitle">角色扮演不同市场参与者 | 体验场内和场外交易 | 讨论中国资本市场发展</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="role-play">角色扮演</button>
+            <button class="tab" data-tab="market-experience">市场体验</button>
+            <button class="tab" data-tab="china-development">中国资本市场</button>
+            <button class="tab" data-tab="discussion">专题讨论</button>
+        </div>
+        
+        <div id="role-play" class="tab-content active">
+            <div class="panel">
+                <h2 class="panel-title">选择您的角色</h2>
+                <p>选择不同的市场参与者角色，体验他们在证券市场中的不同功能和职责。</p>
+                
+                <div class="role-selection">
+                    <div class="role-card" data-role="individual-investor">
+                        <div class="role-icon">👤</div>
+                        <div class="role-name">个人投资者</div>
+                        <div class="role-description">
+                            作为个人投资者，您将通过证券交易追求资产增值，体验投资决策的过程和风险。
+                        </div>
+                    </div>
+                    
+                    <div class="role-card" data-role="institutional-investor">
+                        <div class="role-icon">🏢</div>
+                        <div class="role-name">机构投资者</div>
+                        <div class="role-description">
+                            作为机构投资者，您将管理大规模资金，进行专业投资分析和资产配置。
+                        </div>
+                    </div>
+                    
+                    <div class="role-card" data-role="issuer">
+                        <div class="role-icon">📈</div>
+                        <div class="role-name">上市公司</div>
+                        <div class="role-description">
+                            作为上市公司，您将通过证券市场融资，并履行信息披露等义务。
+                        </div>
+                    </div>
+                    
+                    <div class="role-card" data-role="regulator">
+                        <div class="role-icon">⚖️</div>
+                        <div class="role-name">监管机构</div>
+                        <div class="role-description">
+                            作为监管机构，您将维护市场秩序，保护投资者权益，防范市场风险。
+                        </div>
+                    </div>
+                    
+                    <div class="role-card" data-role="broker">
+                        <div class="role-icon">💼</div>
+                        <div class="role-name">证券经纪商</div>
+                        <div class="role-description">
+                            作为证券经纪商，您将为投资者提供交易服务，并承担市场中介职能。
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="role-details" style="display: none;">
+                    <h3 id="selected-role-name">角色详情</h3>
+                    <div id="role-description"></div>
+                    
+                    <div class="form-group">
+                        <label for="player-name">您的角色名称</label>
+                        <input type="text" id="player-name" placeholder="请输入您的角色名称">
+                    </div>
+                    
+                    <button class="btn" id="confirm-role">确认角色</button>
+                </div>
+            </div>
+            
+            <div class="panel" id="role-scenario" style="display: none;">
+                <h2 class="panel-title" id="scenario-title">角色任务</h2>
+                <div id="scenario-description"></div>
+                
+                <div class="form-group">
+                    <label for="scenario-decision">您的决策</label>
+                    <textarea id="scenario-decision" placeholder="请描述您将如何应对当前情况..."></textarea>
+                </div>
+                
+                <button class="btn" id="submit-decision">提交决策</button>
+                
+                <div class="result" id="decision-result" style="display: none;">
+                    <h3>决策结果</h3>
+                    <div id="decision-outcome"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="market-experience" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">证券市场体验</h2>
+                
+                <div class="market-selection">
+                    <button class="market-btn active" data-market="exchange">场内交易（交易所）</button>
+                    <button class="market-btn" data-market="otc">场外交易（OTC）</button>
+                </div>
+                
+                <div id="exchange-market" class="market-experience">
+                    <h3>上海证券交易所模拟</h3>
+                    <p>体验标准化、集中竞价的场内交易环境。</p>
+                    
+                    <div class="market-grid">
+                        <div class="market-card">
+                            <div class="market-name">主板市场</div>
+                            <div class="market-description">
+                                为成熟大型企业提供融资和交易服务，上市标准严格，监管要求高。
+                            </div>
+                            <button class="btn" data-trading="main-board">进入交易</button>
+                        </div>
+                        
+                        <div class="market-card">
+                            <div class="market-name">科创板</div>
+                            <div class="market-description">
+                                服务科技创新企业，实行注册制，上市标准更加灵活。
+                            </div>
+                            <button class="btn" data-trading="star-market">进入交易</button>
+                        </div>
+                    </div>
+                    
+                    <div class="trading-interface" style="display: none;">
+                        <h4 id="trading-market-name">交易界面</h4>
+                        
+                        <div class="form-group">
+                            <label for="stock-select">选择股票</label>
+                            <select id="stock-select">
+                                <option value="pingan">中国平安 (601318)</option>
+                                <option value="maotai">贵州茅台 (600519)</option>
+                                <option value="icbc">工商银行 (601398)</option>
+                                <option value="zte">中兴通讯 (000063)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="order-type">委托类型</label>
+                            <select id="order-type">
+                                <option value="limit">限价委托</option>
+                                <option value="market">市价委托</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="order-price">委托价格 (元)</label>
+                            <input type="number" id="order-price" value="50.00" step="0.01">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="order-quantity">委托数量 (股)</label>
+                            <input type="number" id="order-quantity" value="100" min="100" step="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="order-action">交易方向</label>
+                            <select id="order-action">
+                                <option value="buy">买入</option>
+                                <option value="sell">卖出</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn" id="place-order">提交委托</button>
+                        
+                        <div class="result" id="order-result" style="display: none;">
+                            <p>委托结果将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="otc-market" class="market-experience" style="display: none;">
+                    <h3>场外交易市场模拟</h3>
+                    <p>体验非标准化、协商定价的场外交易环境。</p>
+                    
+                    <div class="market-grid">
+                        <div class="market-card">
+                            <div class="market-name">新三板</div>
+                            <div class="market-description">
+                                主要为创新型、创业型、成长型中小微企业提供服务的场外市场。
+                            </div>
+                            <button class="btn" data-trading="neeq">进入交易</button>
+                        </div>
+                        
+                        <div class="market-card">
+                            <div class="market-name">区域性股权市场</div>
+                            <div class="market-description">
+                                为特定区域内企业提供股权、债券的转让和融资服务的私募市场。
+                            </div>
+                            <button class="btn" data-trading="regional">进入交易</button>
+                        </div>
+                    </div>
+                    
+                    <div class="trading-interface" style="display: none;">
+                        <h4 id="otc-trading-market-name">场外交易界面</h4>
+                        
+                        <div class="form-group">
+                            <label for="otc-product">选择产品</label>
+                            <select id="otc-product">
+                                <option value="corporate-bond">公司债券</option>
+                                <option value="private-equity">私募股权</option>
+                                <option value="asset-backed">资产支持证券</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="counterparty">交易对手方</label>
+                            <input type="text" id="counterparty" placeholder="输入交易对手方名称">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="negotiation-price">协商价格 (元)</label>
+                            <input type="number" id="negotiation-price" value="100.00" step="0.01">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="negotiation-quantity">交易数量</label>
+                            <input type="number" id="negotiation-quantity" value="1000" min="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="negotiation-terms">特殊条款</label>
+                            <textarea id="negotiation-terms" placeholder="输入交易的特殊条款..."></textarea>
+                        </div>
+                        
+                        <button class="btn" id="start-negotiation">开始协商</button>
+                        
+                        <div class="result" id="negotiation-result" style="display: none;">
+                            <p>协商结果将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="portfolio">
+                    <h3>您的投资组合</h3>
+                    <div id="portfolio-container">
+                        <div class="portfolio-item">
+                            <span>现金</span>
+                            <span>¥100,000</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span>总资产</span>
+                            <span>¥100,000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="trade-history">
+                    <h3>交易记录</h3>
+                    <div id="trade-history-container">
+                        <p>暂无交易记录</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="china-development" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">中国资本市场发展历程</h2>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">1990年</div>
+                        <h3>上海证券交易所成立</h3>
+                        <p>中国第一家证券交易所——上海证券交易所正式开业，标志着中国现代资本市场的开端。</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1991年</div>
+                        <h3>深圳证券交易所成立</h3>
+                        <p>深圳证券交易所正式开业，形成了中国两大证券交易所的格局。</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2005年</div>
+                        <h3>股权分置改革</h3>
+                        <p>解决了上市公司股份分为流通股和非流通股的历史问题，为资本市场健康发展奠定了基础。</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2009年</div>
+                        <h3>创业板推出</h3>
+                        <p>深圳证券交易所创业板正式启动，为成长型创业企业提供融资平台。</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2014年</div>
+                        <h3>沪港通启动</h3>
+                        <p>上海与香港股票市场交易互联互通机制试点启动，是中国资本市场对外开放的重要一步。</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2019年</div>
+                        <h3>科创板设立</h3>
+                        <p>上海证券交易所科创板正式开板，并试点注册制，是中国资本市场改革的重大举措。</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2021年</div>
+                        <h3>北京证券交易所成立</h3>
+                        <p>北京证券交易所正式揭牌开市，打造服务创新型中小企业的主阵地。</p>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>中国资本市场多层次体系</h3>
+                    <div class="market-grid">
+                        <div class="market-card">
+                            <div class="market-name">主板</div>
+                            <div class="market-description">
+                                服务于成熟大型企业，上市标准最高，监管最严格。
+                            </div>
+                        </div>
+                        
+                        <div class="market-card">
+                            <div class="market-name">科创板</div>
+                            <div class="market-description">
+                                服务于科技创新企业，实行注册制，允许未盈利企业上市。
+                            </div>
+                        </div>
+                        
+                        <div class="market-card">
+                            <div class="market-name">创业板</div>
+                            <div class="market-description">
+                                服务于成长型创新创业企业，上市标准较主板更为灵活。
+                            </div>
+                        </div>
+                        
+                        <div class="market-card">
+                            <div class="market-name">新三板</div>
+                            <div class="market-description">
+                                服务于创新型、创业型、成长型中小微企业，是全国性场外市场。
+                            </div>
+                        </div>
+                        
+                        <div class="market-card">
+                            <div class="market-name">区域性股权市场</div>
+                            <div class="market-description">
+                                服务于区域内中小微企业，是私募股权的交易市场。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="discussion" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">中国资本市场发展专题讨论</h2>
+                
+                <div class="discussion-topic">
+                    <h3>讨论主题：注册制改革对中国资本市场的影响</h3>
+                    <p>从2019年科创板试点注册制开始，中国资本市场正在从核准制向注册制全面过渡。请从您所扮演的角色角度，讨论这一改革对市场各方的影响。</p>
+                    
+                    <div class="form-group">
+                        <label for="discussion-role">您的角色</label>
+                        <select id="discussion-role">
+                            <option value="individual-investor">个人投资者</option>
+                            <option value="institutional-investor">机构投资者</option>
+                            <option value="issuer">上市公司</option>
+                            <option value="regulator">监管机构</option>
+                            <option value="broker">证券经纪商</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="discussion-content">您的观点</label>
+                        <textarea id="discussion-content" placeholder="请从您所选角色的角度，阐述对注册制改革的看法..."></textarea>
+                    </div>
+                    
+                    <button class="btn" id="submit-discussion">提交观点</button>
+                </div>
+                
+                <div class="discussion-responses">
+                    <h3>讨论回复</h3>
+                    <div id="responses-container">
+                        <div class="response">
+                            <span class="role-badge badge-regulator">监管机构</span>
+                            <strong>张监管:</strong> 注册制改革强化了市场在资源配置中的决定性作用，监管重心从事前审批转向事中事后监管，这对我们的监管能力提出了更高要求。
+                        </div>
+                        
+                        <div class="response">
+                            <span class="role-badge badge-issuer">上市公司</span>
+                            <strong>李总:</strong> 注册制为更多企业提供了上市机会，特别是我们这样的科技创新企业。但同时也对我们的信息披露质量提出了更高要求。
+                        </div>
+                        
+                        <div class="response">
+                            <span class="role-badge badge-investor">个人投资者</span>
+                            <strong>王投资者:</strong> 注册制下上市公司数量增加，投资选择更多，但也需要我们提高风险识别能力，不能再依赖监管部门的"背书"。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>学习目标</h3>
+            <ol>
+                <li>理解证券市场的功能（融资、投资、定价、资源配置）和分类（场内市场、场外市场）</li>
+                <li>通过角色扮演体验不同市场参与者的职责和行为模式</li>
+                <li>比较场内交易和场外交易的特点与差异</li>
+                <li>了解中国资本市场的发展历程和多层次市场体系</li>
+                <li>讨论中国资本市场改革（如注册制）的影响和意义</li>
+            </ol>
+            <p><strong>学习重点：</strong>通过角色扮演和市场体验，深入理解证券市场的功能、分类和运作机制，以及中国资本市场的发展特点。</p>
+        </div>
+    </div>
+
+    <script>
+        // 角色数据
+        const roles = {
+            'individual-investor': {
+                name: '个人投资者',
+                description: `
+                    <p>作为个人投资者，您在证券市场中的主要目标是实现资产保值增值。您可以通过买卖股票、债券、基金等证券产品参与市场。</p>
+                    <h4>主要职责：</h4>
+                    <ul>
+                        <li>进行投资分析和决策</li>
+                        <li>管理个人投资组合</li>
+                        <li>承担投资风险</li>
+                        <li>享受投资收益或承担损失</li>
+                    </ul>
+                    <h4>典型行为：</h4>
+                    <ul>
+                        <li>通过证券账户进行交易</li>
+                        <li>关注公司基本面和市场动态</li>
+                        <li>分散投资以降低风险</li>
+                    </ul>
+                `,
+                scenario: {
+                    title: '投资决策挑战',
+                    description: `
+                        <p>您有10万元可投资资金，面临以下市场情况：</p>
+                        <ul>
+                            <li>宏观经济数据显示经济增长放缓</li>
+                            <li>某科技公司发布创新产品，股价已上涨30%</li>
+                            <li>传统制造业公司估值处于历史低位，但行业前景不明</li>
+                            <li>市场波动加剧，投资者情绪分化</li>
+                        </ul>
+                        <p>请做出您的投资决策并说明理由。</p>
+                    `
+                }
+            },
+            'institutional-investor': {
+                name: '机构投资者',
+                description: `
+                    <p>作为机构投资者，您管理着大规模资金，如养老金、保险资金、公募基金等，投资行为对市场有重要影响。</p>
+                    <h4>主要职责：</h4>
+                    <ul>
+                        <li>进行专业投资研究和分析</li>
+                        <li>构建和管理投资组合</li>
+                        <li>履行受托责任，保护投资者利益</li>
+                        <li>参与公司治理，行使股东权利</li>
+                    </ul>
+                    <h4>典型行为：</h4>
+                    <ul>
+                        <li>建立专业研究团队</li>
+                        <li>进行大规模资产配置</li>
+                        <li>参与上市公司调研和沟通</li>
+                        <li>使用复杂的投资策略和工具</li>
+                    </ul>
+                `,
+                scenario: {
+                    title: '资产配置决策',
+                    description: `
+                        <p>您管理的基金规模为10亿元，需要制定下一季度的资产配置方案：</p>
+                        <ul>
+                            <li>股票市场：估值处于历史中高位，但结构性机会明显</li>
+                            <li>债券市场：利率处于低位，但可能有上行风险</li>
+                            <li>另类投资：私募股权、房地产等机会增加，但流动性差</li>
+                            <li>现金：需要保持一定流动性应对赎回</li>
+                        </ul>
+                        <p>请制定您的资产配置方案并说明理由。</p>
+                    `
+                }
+            },
+            'issuer': {
+                name: '上市公司',
+                description: `
+                    <p>作为上市公司，您通过证券市场募集资金，用于业务发展，同时承担信息披露和公司治理等责任。</p>
+                    <h4>主要职责：</h4>
+                    <ul>
+                        <li>履行信息披露义务</li>
+                        <li>维护投资者关系</li>
+                        <li>完善公司治理结构</li>
+                        <li>为股东创造价值</li>
+                    </ul>
+                    <h4>典型行为：</h4>
+                    <ul>
+                        <li>进行IPO、再融资等资本运作</li>
+                        <li>定期披露财务报告和重大信息</li>
+                        <li>召开股东大会和投资者说明会</li>
+                        <li>实施股权激励等公司治理措施</li>
+                    </ul>
+                `,
+                scenario: {
+                    title: '融资决策挑战',
+                    description: `
+                        <p>您的公司需要扩大生产规模，面临以下融资选择：</p>
+                        <ul>
+                            <li>股权融资：通过增发股票募集5亿元，但会稀释现有股东权益</li>
+                            <li>债券融资：发行公司债券，利率5%，期限3年</li>
+                            <li>银行借款：利率较低，但期限较短，需要抵押</li>
+                        </ul>
+                        <p>同时，公司近期业绩波动较大，股价已下跌15%。</p>
+                        <p>请选择您的融资方案并说明理由。</p>
+                    `
+                }
+            },
+            'regulator': {
+                name: '监管机构',
+                description: `
+                    <p>作为监管机构，您负责维护证券市场秩序，保护投资者合法权益，防范和化解市场风险。</p>
+                    <h4>主要职责：</h4>
+                    <ul>
+                        <li>制定和执行市场规则</li>
+                        <li>监管市场参与者行为</li>
+                        <li>查处违法违规行为</li>
+                        <li>维护市场公平、公正、透明</li>
+                    </ul>
+                    <h4>典型行为：</h4>
+                    <ul>
+                        <li>审核IPO和再融资申请</li>
+                        <li>监控市场交易行为</li>
+                        <li>调查和处理违规案件</li>
+                        <li>发布监管政策和指引</li>
+                    </ul>
+                `,
+                scenario: {
+                    title: '监管决策挑战',
+                    description: `
+                        <p>您面临以下监管难题：</p>
+                        <ul>
+                            <li>某上市公司涉嫌财务造假，但证据尚不充分</li>
+                            <li>市场出现新型交易模式，现有规则未明确规范</li>
+                            <li>投资者投诉某券商不当销售高风险产品</li>
+                            <li>市场波动加剧，需要决定是否干预</li>
+                        </ul>
+                        <p>请制定您的监管应对方案并说明理由。</p>
+                    `
+                }
+            },
+            'broker': {
+                name: '证券经纪商',
+                description: `
+                    <p>作为证券经纪商，您为投资者提供证券交易服务，是连接投资者和证券市场的重要中介。</p>
+                    <h4>主要职责：</h4>
+                    <ul>
+                        <li>提供证券交易通道</li>
+                        <li>执行客户交易指令</li>
+                        <li>提供投资咨询和研究服务</li>
+                        <li>管理客户资产</li>
+                    </ul>
+                    <h4>典型行为：</h4>
+                    <ul>
+                        <li>开设和管理客户证券账户</li>
+                        <li>提供交易系统和平台</li>
+                        <li>发布研究报告和投资建议</li>
+                        <li>开展投资者教育活动</li>
+                    </ul>
+                `,
+                scenario: {
+                    title: '业务发展决策',
+                    description: `
+                        <p>您的券商面临以下业务发展选择：</p>
+                        <ul>
+                            <li>财富管理：发展高净值客户服务，但需要投入大量资源</li>
+                            <li>机构业务：服务公募基金、保险公司等，竞争激烈但收益高</li>
+                            <li>金融科技：开发智能投顾、交易系统等，需要技术投入</li>
+                            <li>国际化：拓展海外业务，面临政策和市场风险</li>
+                        </ul>
+                        <p>请制定您的业务发展策略并说明理由。</p>
+                    `
+                }
+            }
+        };
+
+        // 交易历史
+        let tradeHistory = [];
+        let portfolio = {
+            cash: 100000,
+            holdings: {}
+        };
+
+        // 初始化函数
+        function init() {
+            // 标签页切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 角色选择
+            document.querySelectorAll('.role-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const roleId = this.getAttribute('data-role');
+                    const role = roles[roleId];
+                    
+                    document.getElementById('selected-role-name').textContent = role.name;
+                    document.getElementById('role-description').innerHTML = role.description;
+                    document.getElementById('role-details').style.display = 'block';
+                    
+                    // 保存选中的角色
+                    this.selectedRole = roleId;
+                });
+            });
+            
+            // 确认角色
+            document.getElementById('confirm-role').addEventListener('click', function() {
+                const playerName = document.getElementById('player-name').value.trim();
+                if (!playerName) {
+                    alert('请输入您的角色名称');
+                    return;
+                }
+                
+                const selectedRoleCard = document.querySelector('.role-card.active');
+                if (!selectedRoleCard) {
+                    alert('请先选择一个角色');
+                    return;
+                }
+                
+                const roleId = selectedRoleCard.selectedRole;
+                const role = roles[roleId];
+                
+                document.getElementById('scenario-title').textContent = role.scenario.title;
+                document.getElementById('scenario-description').innerHTML = role.scenario.description;
+                document.getElementById('role-scenario').style.display = 'block';
+                
+                // 保存玩家信息
+                window.player = {
+                    name: playerName,
+                    role: roleId,
+                    roleName: role.name
+                };
+                
+                alert(`角色确认成功！您现在是一名${role.name} - ${playerName}`);
+            });
+            
+            // 提交决策
+            document.getElementById('submit-decision').addEventListener('click', function() {
+                const decision = document.getElementById('scenario-decision').value.trim();
+                if (!decision) {
+                    alert('请描述您的决策');
+                    return;
+                }
+                
+                document.getElementById('decision-result').style.display = 'block';
+                document.getElementById('decision-outcome').innerHTML = `
+                    <p><strong>您的决策：</strong> ${decision}</p>
+                    <p><strong>结果反馈：</strong> 您的决策已提交，系统将根据您的角色和决策内容进行评估。在实际市场中，不同角色的决策会产生不同的市场影响，这正是证券市场复杂性和魅力的体现。</p>
+                `;
+            });
+            
+            // 市场选择
+            document.querySelectorAll('.market-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.market-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.market-experience').forEach(m => m.style.display = 'none');
+                    
+                    this.classList.add('active');
+                    const market = this.getAttribute('data-market');
+                    document.getElementById(`${market}-market`).style.display = 'block';
+                });
+            });
+            
+            // 场内交易进入
+            document.querySelectorAll('[data-trading]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tradingType = this.getAttribute('data-trading');
+                    const marketName = this.closest('.market-card').querySelector('.market-name').textContent;
+                    
+                    document.querySelectorAll('.trading-interface').forEach(t => t.style.display = 'none');
+                    
+                    if (tradingType === 'main-board' || tradingType === 'star-market') {
+                        document.querySelector('.trading-interface').style.display = 'block';
+                        document.getElementById('trading-market-name').textContent = `${marketName}交易界面`;
+                    } else {
+                        document.querySelector('#otc-market .trading-interface').style.display = 'block';
+                        document.getElementById('otc-trading-market-name').textContent = `${marketName}交易界面`;
+                    }
+                });
+            });
+            
+            // 提交委托
+            document.getElementById('place-order').addEventListener('click', function() {
+                const stock = document.getElementById('stock-select').value;
+                const orderType = document.getElementById('order-type').value;
+                const price = parseFloat(document.getElementById('order-price').value);
+                const quantity = parseInt(document.getElementById('order-quantity').value);
+                const action = document.getElementById('order-action').value;
+                
+                const stockNames = {
+                    'pingan': '中国平安',
+                    'maotai': '贵州茅台',
+                    'icbc': '工商银行',
+                    'zte': '中兴通讯'
+                };
+                
+                const stockName = stockNames[stock];
+                const totalValue = price * quantity;
+                
+                if (action === 'buy' && totalValue > portfolio.cash) {
+                    alert('资金不足，无法完成买入委托');
+                    return;
+                }
+                
+                let resultText = '';
+                if (action === 'buy') {
+                    resultText = `您已提交${orderType=== 'limit' ? '限价' : '市价'}买入委托：${stockName} ${quantity}股，委托价格${price}元，总金额${totalValue}元。`;
+                    
+                    // 更新投资组合
+                    portfolio.cash -= totalValue;
+                    if (!portfolio.holdings[stock]) {
+                        portfolio.holdings[stock] = { quantity: 0, avgPrice: 0 };
+                    }
+                    portfolio.holdings[stock].quantity += quantity;
+                    portfolio.holdings[stock].avgPrice = (
+                        (portfolio.holdings[stock].avgPrice * (portfolio.holdings[stock].quantity - quantity) + totalValue)
+                    ) / portfolio.holdings[stock].quantity;
+                } else {
+                    if (!portfolio.holdings[stock] || portfolio.holdings[stock].quantity < quantity) {
+                        alert('持仓不足，无法完成卖出委托');
+                        return;
+                    }
+                    
+                    resultText = `您已提交${orderType=== 'limit' ? '限价' : '市价'}卖出委托：${stockName} ${quantity}股，委托价格${price}元，总金额${totalValue}元。`;
+                    
+                    // 更新投资组合
+                    portfolio.cash += totalValue;
+                    portfolio.holdings[stock].quantity -= quantity;
+                }
+                
+                document.getElementById('order-result').innerHTML = resultText;
+                document.getElementById('order-result').style.display = 'block';
+                
+                // 记录交易历史
+                tradeHistory.unshift({
+                    type: action,
+                    stock: stockName,
+                    quantity: quantity,
+                    price: price,
+                    amount: totalValue,
+                    market: 'exchange',
+                    timestamp: new Date()
+                });
+                
+                updatePortfolio();
+                updateTradeHistory();
+            });
+            
+            // 场外交易协商
+            document.getElementById('start-negotiation').addEventListener('click', function() {
+                const product = document.getElementById('otc-product').value;
+                const counterparty = document.getElementById('counterparty').value;
+                const price = parseFloat(document.getElementById('negotiation-price').value);
+                const quantity = parseInt(document.getElementById('negotiation-quantity').value);
+                const terms = document.getElementById('negotiation-terms').value;
+                
+                if (!counterparty) {
+                    alert('请输入交易对手方名称');
+                    return;
+                }
+                
+                const productNames = {
+                    'corporate-bond': '公司债券',
+                    'private-equity': '私募股权',
+                    'asset-backed': '资产支持证券'
+                };
+                
+                const productName = productNames[product];
+                const totalValue = price * quantity;
+                
+                let resultText = `您已开始与${counterparty}协商交易：${productName}，数量${quantity}，协商价格${price}元，总金额${totalValue}元。`;
+                
+                if (terms) {
+                    resultText += `<br>特殊条款：${terms}`;
+                }
+                
+                resultText += `<br>场外交易需要双方协商确定最终条款，并签署协议。`;
+                
+                document.getElementById('negotiation-result').innerHTML = resultText;
+                document.getElementById('negotiation-result').style.display = 'block';
+                
+                // 记录交易历史
+                tradeHistory.unshift({
+                    type: 'negotiation',
+                    product: productName,
+                    counterparty: counterparty,
+                    quantity: quantity,
+                    price: price,
+                    amount: totalValue,
+                    terms: terms,
+                    market: 'otc',
+                    timestamp: new Date()
+                });
+                
+                updateTradeHistory();
+            });
+            
+            // 提交讨论
+            document.getElementById('submit-discussion').addEventListener('click', function() {
+                const role = document.getElementById('discussion-role').value;
+                const content = document.getElementById('discussion-content').value.trim();
+                
+                if (!content) {
+                    alert('请输入您的观点');
+                    return;
+                }
+                
+                const roleNames = {
+                    'individual-investor': '个人投资者',
+                    'institutional-investor': '机构投资者',
+                    'issuer': '上市公司',
+                    'regulator': '监管机构',
+                    'broker': '证券经纪商'
+                };
+                
+                const roleName = roleNames[role];
+                const badgeClass = {
+                    'individual-investor': 'badge-investor',
+                    'institutional-investor': 'badge-investor',
+                    'issuer': 'badge-issuer',
+                    'regulator': 'badge-regulator',
+                    'broker': 'badge-broker'
+                }[role];
+                
+                const playerName = window.player ? window.player.name : '匿名用户';
+                
+                const responseElement = document.createElement('div');
+                responseElement.className = 'response';
+                responseElement.innerHTML = `
+                    <span class="role-badge ${badgeClass}">${roleName}</span>
+                    <strong>${playerName}:</strong> ${content}
+                `;
+                
+                document.getElementById('responses-container').prepend(responseElement);
+                document.getElementById('discussion-content').value = '';
+                
+                alert('您的观点已提交！');
+            });
+            
+            // 初始化投资组合和交易历史
+            updatePortfolio();
+            updateTradeHistory();
+        }
+        
+        // 更新投资组合显示
+        function updatePortfolio() {
+            const container = document.getElementById('portfolio-container');
+            let totalValue = portfolio.cash;
+            let holdingsHTML = '';
+            
+            for (const [stock, holding] of Object.entries(portfolio.holdings)) {
+                if (holding.quantity > 0) {
+                    // 简化的当前价格（实际中应从市场获取）
+                    const currentPrice = 50; // 假设所有股票当前价格都是50元
+                    const value = holding.quantity * currentPrice;
+                    totalValue += value;
+                    
+                    const stockNames = {
+                        'pingan': '中国平安',
+                        'maotai': '贵州茅台',
+                        'icbc': '工商银行',
+                        'zte': '中兴通讯'
+                    };
+                    
+                    holdingsHTML += `
+                        <div class="portfolio-item">
+                            <span>${stockNames[stock]}</span>
+                            <span>${holding.quantity}股 (¥${value.toFixed(2)})</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            container.innerHTML = `
+                <div class="portfolio-item">
+                    <span>现金</span>
+                    <span>¥${portfolio.cash.toFixed(2)}</span>
+                </div>
+                ${holdingsHTML}
+                <div class="portfolio-item" style="font-weight: 600;">
+                    <span>总资产</span>
+                    <span>¥${totalValue.toFixed(2)}</span>
+                </div>
+            `;
+        }
+        
+        // 更新交易历史
+        function updateTradeHistory() {
+            const container = document.getElementById('trade-history-container');
+            
+            if (tradeHistory.length === 0) {
+                container.innerHTML = '<p>暂无交易记录</p>';
+                return;
+            }
+            
+            let historyHTML = '';
+            tradeHistory.slice(0, 10).forEach(trade => {
+                let typeClass = 'buy';
+                let typeText = '买入';
+                
+                if (trade.type === 'sell') {
+                    typeClass = 'sell';
+                    typeText = '卖出';
+                } else if (trade.type === 'negotiation') {
+                    typeClass = 'regulatory';
+                    typeText = '协商';
+                }
+                
+                const dateStr = trade.timestamp.toLocaleDateString();
+                const timeStr = trade.timestamp.toLocaleTimeString();
+                
+                if (trade.type === 'negotiation') {
+                    historyHTML += `
+                        <div class="history-item ${typeClass}">
+                            <div><strong>${typeText} ${trade.product}</strong> (${trade.market === 'exchange' ? '场内' : '场外'})</div>
+                            <div>对手方: ${trade.counterparty} | 数量: ${trade.quantity} | 价格: ¥${trade.price.toFixed(2)}</div>
+                            <div style="font-size: 0.8rem; color: #666;">${dateStr} ${timeStr}</div>
+                        </div>
+                    `;
+                } else {
+                    historyHTML += `
+                        <div class="history-item ${typeClass}">
+                            <div><strong>${typeText} ${trade.stock}</strong> (${trade.market === 'exchange' ? '场内' : '场外'})</div>
+                            <div>数量: ${trade.quantity}股 | 价格: ¥${trade.price.toFixed(2)} | 金额: ¥${trade.amount.toFixed(2)}</div>
+                            <div style="font-size: 0.8rem; color: #666;">${dateStr} ${timeStr}</div>
+                        </div>
+                    `;
+                }
+            });
+            
+            container.innerHTML = historyHTML;
+        }
+        
+        // 初始化应用
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

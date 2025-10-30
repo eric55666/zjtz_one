@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指数追踪与监管挑战 - 证券市场指数与监管模拟</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.4/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --market-up: #2ecc71;
+            --market-down: #e74c3c;
+            --mechanism-1: #3498db;
+            --mechanism-2: #9b59b6;
+            --mechanism-3: #1abc9c;
+            --mechanism-4: #e67e22;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: var(--light);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .index-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .index-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        
+        .index-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .index-card.active {
+            border-color: var(--secondary);
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .index-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .index-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .index-change {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .index-change.positive {
+            color: var(--market-up);
+        }
+        
+        .index-change.negative {
+            color: var(--market-down);
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .time-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .time-btn {
+            padding: 8px 15px;
+            background: var(--light);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .time-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .regulatory-scenario {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .scenario-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .scenario-description {
+            margin-bottom: 15px;
+        }
+        
+        .regulatory-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .regulatory-option {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .regulatory-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .regulatory-option.selected {
+            border-color: var(--secondary);
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .option-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .option-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background: var(--accent);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .market-events {
+            margin-top: 20px;
+        }
+        
+        .event-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .event-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .event-time {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .event-impact {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .impact-positive {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--market-up);
+        }
+        
+        .impact-negative {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--market-down);
+        }
+        
+        .impact-neutral {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--secondary);
+        }
+        
+        .analysis-panel {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .analysis-question {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .analysis-options {
+            margin-bottom: 15px;
+        }
+        
+        .analysis-option {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .analysis-option:hover {
+            background: #e0f0ff;
+        }
+        
+        .analysis-option.selected {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .regulatory-mechanisms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .mechanism-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--mechanism-1);
+            transition: transform 0.3s;
+        }
+        
+        .mechanism-card:nth-child(2) {
+            border-top-color: var(--mechanism-2);
+        }
+        
+        .mechanism-card:nth-child(3) {
+            border-top-color: var(--mechanism-3);
+        }
+        
+        .mechanism-card:nth-child(4) {
+            border-top-color: var(--mechanism-4);
+        }
+        
+        .mechanism-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .mechanism-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .instructions {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .market-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .status-item {
+            text-align: center;
+        }
+        
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .status-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .index-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .regulatory-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .market-status {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>指数追踪与监管挑战</h1>
+            <p class="subtitle">跟踪主要市场指数 | 模拟监管决策 | 分析指数变化原因 | 学习市场监管机制</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="index-tracking">指数追踪</button>
+            <button class="tab" data-tab="regulatory-challenge">监管挑战</button>
+            <button class="tab" data-tab="market-analysis">市场分析</button>
+            <button class="tab" data-tab="regulatory-mechanisms">监管机制</button>
+        </div>
+        
+        <div id="index-tracking" class="tab-content active">
+            <div class="panel">
+                <h2 class="panel-title">主要市场指数追踪</h2>
+                <p>实时跟踪主要市场指数表现，了解不同指数的构成和特点。</p>
+                
+                <div class="index-selection">
+                    <div class="index-card active" data-index="shanghai">
+                        <div class="index-name">上证指数</div>
+                        <div class="index-value" id="shanghai-value">3,250.55</div>
+                        <div class="index-change positive" id="shanghai-change">+1.25%</div>
+                    </div>
+                    
+                    <div class="index-card" data-index="shenzhen">
+                        <div class="index-name">深证成指</div>
+                        <div class="index-value" id="shenzhen-value">11,520.38</div>
+                        <div class="index-change positive" id="shenzhen-change">+0.89%</div>
+                    </div>
+                    
+                    <div class="index-card" data-index="star">
+                        <div class="index-name">科创50</div>
+                        <div class="index-value" id="star-value">1,058.72</div>
+                        <div class="index-change negative" id="star-change">-0.45%</div>
+                    </div>
+                    
+                    <div class="index-card" data-index="csi300">
+                        <div class="index-name">沪深300</div>
+                        <div class="index-value" id="csi300-value">4,120.15</div>
+                        <div class="index-change positive" id="csi300-change">+0.76%</div>
+                    </div>
+                </div>
+                
+                <div class="time-controls">
+                    <button class="time-btn active" data-period="1D">1天</button>
+                    <button class="time-btn" data-period="1W">1周</button>
+                    <button class="time-btn" data-period="1M">1月</button>
+                    <button class="time-btn" data-period="3M">3月</button>
+                    <button class="time-btn" data-period="1Y">1年</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="index-chart"></canvas>
+                </div>
+                
+                <div class="market-status">
+                    <div class="status-item">
+                        <div class="status-value" id="total-market-cap">85.2万亿</div>
+                        <div class="status-label">总市值</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="turnover-rate">0.85%</div>
+                        <div class="status-label">换手率</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="pe-ratio">14.2</div>
+                        <div class="status-label">平均市盈率</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="pb-ratio">1.65</div>
+                        <div class="status-label">平均市净率</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2 class="panel-title">实时市场动态</h2>
+                <div class="market-events" id="market-events-container">
+                    <!-- 市场事件将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="regulatory-challenge" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">监管挑战模拟</h2>
+                <p>作为市场监管者，面对复杂市场情况，制定监管政策并观察市场反应。</p>
+                
+                <div class="regulatory-scenario">
+                    <div class="scenario-title">场景一：市场异常波动</div>
+                    <div class="scenario-description">
+                        <p>近期，某科技板块股票出现异常波动，多个股票连续涨停，市场投机氛围浓厚。同时，有媒体报道称部分投资者利用杠杆资金进行炒作，市场风险积聚。</p>
+                        <p>作为监管者，您需要采取措施维护市场稳定，防范系统性风险。</p>
+                    </div>
+                    
+                    <div class="regulatory-options">
+                        <div class="regulatory-option" data-scenario="1" data-option="1">
+                            <div class="option-title">加强交易监管</div>
+                            <div class="option-description">
+                                对异常交易账户进行重点监控，限制频繁申报和撤单行为，加强对"涨停敢死队"的监管。
+                            </div>
+                        </div>
+                        
+                        <div class="regulatory-option" data-scenario="1" data-option="2">
+                            <div class="option-title">提高保证金要求</div>
+                            <div class="option-description">
+                                提高相关股票的融资保证金比例，限制杠杆资金进入，降低市场投机性。
+                            </div>
+                        </div>
+                        
+                        <div class="regulatory-option" data-scenario="1" data-option="3">
+                            <div class="option-title">加强信息披露</div>
+                            <div class="option-description">
+                                要求相关公司及时披露风险提示公告，澄清市场传闻，提高信息透明度。
+                            </div>
+                        </div>
+                        
+                        <div class="regulatory-option" data-scenario="1" data-option="4">
+                            <div class="option-title">暂不干预</div>
+                            <div class="option-description">
+                                认为这是市场正常波动，暂不采取特殊监管措施，继续观察市场发展。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="submit-regulatory-decision-1">提交监管决策</button>
+                    
+                    <div class="result" id="regulatory-result-1" style="display: none; margin-top: 20px;">
+                        <h3>决策结果</h3>
+                        <div id="regulatory-outcome-1"></div>
+                    </div>
+                </div>
+                
+                <div class="regulatory-scenario">
+                    <div class="scenario-title">场景二：上市公司违规</div>
+                    <div class="scenario-description">
+                        <p>某上市公司被曝出财务造假嫌疑，涉嫌虚增收入和利润。消息传出后，公司股价连续跌停，投资者损失惨重，市场信心受到打击。</p>
+                        <p>作为监管者，您需要采取措施维护市场秩序，保护投资者权益。</p>
+                    </div>
+                    
+                    <div class="regulatory-options">
+                        <div class="regulatory-option" data-scenario="2" data-option="5">
+                            <div class="option-title">立案调查</div>
+                            <div class="option-description">
+                                立即对公司立案调查，冻结相关账户，搜集证据，严肃处理违规行为。
+                            </div>
+                        </div>
+                        
+                        <div class="regulatory-option" data-scenario="2" data-option="6">
+                            <div class="option-title">责令停牌</div>
+                            <div class="option-description">
+                                要求公司股票立即停牌，防止股价进一步异常波动，待调查清楚后再复牌。
+                            </div>
+                        </div>
+                        
+                        <div class="regulatory-option" data-scenario="2" data-option="7">
+                            <div class="option-title">投资者保护</div>
+                            <div class="option-description">
+                                启动投资者保护机制，协调设立赔偿基金，帮助受损投资者维权。
+                            </div>
+                        </div>
+                        
+                        <div class="regulatory-option" data-scenario="2" data-option="8">
+                            <div class="option-title">加强市场教育</div>
+                            <div class="option-description">
+                                通过媒体加强投资者风险教育，提醒投资者警惕财务造假风险。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="submit-regulatory-decision-2">提交监管决策</button>
+                    
+                    <div class="result" id="regulatory-result-2" style="display: none; margin-top: 20px;">
+                        <h3>决策结果</h3>
+                        <div id="regulatory-outcome-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="market-analysis" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">指数变化原因分析</h2>
+                <p>分析影响市场指数变化的主要因素，理解宏观经济、政策环境与市场表现的关系。</p>
+                
+                <div class="analysis-panel">
+                    <div class="analysis-question">问题1: 近期上证指数上涨的主要原因是什么？</div>
+                    <div class="analysis-options">
+                        <div class="analysis-option" data-correct="false">A. 国际地缘政治紧张局势缓解</div>
+                        <div class="analysis-option" data-correct="true">B. 央行降准释放流动性，市场资金面宽松</div>
+                        <div class="analysis-option" data-correct="false">C. 上市公司业绩普遍下滑</div>
+                        <div class="analysis-option" data-correct="false">D. 外资大幅流出中国市场</div>
+                    </div>
+                    
+                    <div class="analysis-question">问题2: 科创50指数近期表现弱于主板的原因包括？</div>
+                    <div class="analysis-options">
+                        <div class="analysis-option" data-correct="true">A. 市场风险偏好下降，资金从高风险板块流出</div>
+                        <div class="analysis-option" data-correct="false">B. 科创板公司业绩普遍优于主板</div>
+                        <div class="analysis-option" data-correct="true">C. 美国加息预期强化，科技股估值承压</div>
+                        <div class="analysis-option" data-correct="false">D. 科创板交易制度限制导致流动性不足</div>
+                    </div>
+                    
+                    <div class="analysis-question">问题3: 影响股市中长期走势的关键因素有哪些？</div>
+                    <div class="analysis-options">
+                        <div class="analysis-option" data-correct="true">A. 宏观经济基本面和企业盈利增长</div>
+                        <div class="analysis-option" data-correct="true">B. 货币政策与流动性环境</div>
+                        <div class="analysis-option" data-correct="false">C. 短期市场情绪和投机资金流向</div>
+                        <div class="analysis-option" data-correct="true">D. 产业政策和结构性改革方向</div>
+                    </div>
+                    
+                    <button class="btn btn-success" id="submit-analysis">提交分析</button>
+                    
+                    <div class="result" id="analysis-result" style="display: none; margin-top: 20px;">
+                        <h3>分析结果</h3>
+                        <p>您的得分: <span id="analysis-score">0</span>/3</p>
+                        <p id="analysis-feedback"></p>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>指数构成与影响因素</h3>
+                    <div class="regulatory-mechanisms">
+                        <div class="mechanism-card">
+                            <div class="mechanism-title">宏观经济因素</div>
+                            <p>GDP增长、通货膨胀、利率水平、就业数据等宏观经济指标直接影响市场预期和投资者信心。</p>
+                        </div>
+                        
+                        <div class="mechanism-card">
+                            <div class="mechanism-title">政策环境</div>
+                            <p>货币政策、财政政策、产业政策、监管政策等变化会对不同行业和整体市场产生显著影响。</p>
+                        </div>
+                        
+                        <div class="mechanism-card">
+                            <div class="mechanism-title">国际环境</div>
+                            <p>全球经济增长、国际贸易形势、地缘政治风险、主要央行政策等外部因素通过多种渠道影响国内市场。</p>
+                        </div>
+                        
+                        <div class="mechanism-card">
+                            <div class="mechanism-title">市场情绪</div>
+                            <p>投资者情绪、风险偏好、资金流向等行为金融因素在短期内可能主导市场走势。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="regulatory-mechanisms" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">证券市场监管机制</h2>
+                <p>了解中国证券市场监管体系、主要监管机构和监管工具。</p>
+                
+                <div class="regulatory-mechanisms">
+                    <div class="mechanism-card">
+                        <div class="mechanism-title">中国证监会</div>
+                        <p>国务院直属正部级事业单位，负责统一监督管理全国证券期货市场，维护市场秩序，保障合法运行。</p>
+                    </div>
+                    
+                    <div class="mechanism-card">
+                        <div class="mechanism-title">证券交易所自律监管</div>
+                        <p>上海证券交易所、深圳证券交易所和北京证券交易所负责对上市公司、会员及交易活动进行一线监管。</p>
+                    </div>
+                    
+                    <div class="mechanism-card">
+                        <div class="mechanism-title">中国结算</div>
+                        <p>中国证券登记结算有限责任公司提供证券账户管理、登记存管和结算交收服务，是市场基础设施的重要组成部分。</p>
+                    </div>
+                    
+                    <div class="mechanism-card">
+                        <div class="mechanism-title">证券业协会</div>
+                        <p>中国证券业协会实施行业自律管理，制定行业标准和规范，组织从业人员资格考试和培训。</p>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>主要监管工具</h3>
+                    <div class="regulatory-mechanisms">
+                        <div class="mechanism-card">
+                            <div class="mechanism-title">信息披露监管</div>
+                            <p>要求上市公司真实、准确、完整、及时地披露信息，保障投资者知情权，提高市场透明度。</p>
+                        </div>
+                        
+                        <div class="mechanism-card">
+                            <div class="mechanism-title">交易行为监管</div>
+                            <p>监控异常交易行为，打击市场操纵、内幕交易等违法违规行为，维护公平交易环境。</p>
+                        </div>
+                        
+                        <div class="mechanism-card">
+                            <div class="mechanism-title">机构监管</div>
+                            <p>对证券公司、基金公司、期货公司等市场中介机构实施准入管理和持续监管，防范机构风险。</p>
+                        </div>
+                        
+                        <div class="mechanism-card">
+                            <div class="mechanism-title">投资者保护</div>
+                            <p>建立多元化纠纷解决机制，推动适当性管理，加强投资者教育，保护投资者合法权益。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>监管改革与发展</h3>
+                    <ul>
+                        <li><strong>注册制改革：</strong> 从核准制向注册制转变，强化信息披露，减少行政干预，让市场在资源配置中发挥决定性作用。</li>
+                        <li><strong>资本市场双向开放：</strong> 通过沪港通、深港通、沪伦通等机制，稳步推进资本市场对外开放，提升国际影响力。</li>
+                        <li><strong>科技监管：</strong> 运用大数据、人工智能等技术提升监管效能，实现"穿透式"监管，防范新型风险。</li>
+                        <li><strong>法治建设：</strong> 修订《证券法》，完善证券民事赔偿制度，大幅提高违法违规成本，强化法律威慑力。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>学习目标</h3>
+            <ol>
+                <li>理解主要市场指数（如上证指数、深证成指、科创50等）的构成、特点和意义</li>
+                <li>掌握影响市场指数变化的主要因素和分析方法</li>
+                <li>了解证券市场监管体系和主要监管机制</li>
+                <li>通过模拟监管决策，理解监管政策的制定过程和市场影响</li>
+                <li>认识中国资本市场改革方向和监管发展趋势</li>
+            </ol>
+            <p><strong>学习重点：</strong>通过指数追踪和监管挑战模拟，深入理解证券市场运行机制和监管逻辑，培养市场分析和风险识别能力。</p>
+        </div>
+    </div>
+
+    <script>
+        // 指数数据
+        const indices = {
+            'shanghai': {
+                name: '上证指数',
+                currentValue: 3250.55,
+                change: 1.25,
+                data: generateIndexData(3250, 1.25)
+            },
+            'shenzhen': {
+                name: '深证成指',
+                currentValue: 11520.38,
+                change: 0.89,
+                data: generateIndexData(11520, 0.89)
+            },
+            'star': {
+                name: '科创50',
+                currentValue: 1058.72,
+                change: -0.45,
+                data: generateIndexData(1058, -0.45)
+            },
+            'csi300': {
+                name: '沪深300',
+                currentValue: 4120.15,
+                change: 0.76,
+                data: generateIndexData(4120, 0.76)
+            }
+        };
+        
+        // 市场事件数据
+        const marketEvents = [
+            {
+                title: '央行宣布降准0.25个百分点',
+                time: '2023-11-15 09:15',
+                impact: 'positive',
+                description: '中国人民银行决定下调金融机构存款准备金率0.25个百分点，释放长期资金约5000亿元。'
+            },
+            {
+                title: '10月CPI同比上涨2.1%',
+                time: '2023-11-09 09:30',
+                impact: 'neutral',
+                description: '国家统计局数据显示，10月份全国居民消费价格同比上涨2.1%，环比上涨0.1%。'
+            },
+            {
+                title: '中美经贸高级别磋商举行',
+                time: '2023-11-05 14:20',
+                impact: 'positive',
+                description: '中美经贸高级别磋商双方牵头人通话，就解决彼此核心关切问题进行了讨论。'
+            },
+            {
+                title: '某科技公司涉嫌财务造假',
+                time: '2023-11-02 10:45',
+                impact: 'negative',
+                description: '媒体报道某科技公司涉嫌财务造假，证监会已启动调查程序，公司股票停牌。'
+            }
+        ];
+        
+        let currentIndex = 'shanghai';
+        let currentPeriod = '1D';
+        let indexChart;
+        
+        // 初始化函数
+        function init() {
+            // 标签页切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 指数选择
+            document.querySelectorAll('.index-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.index-card').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentIndex = this.getAttribute('data-index');
+                    updateChart();
+                });
+            });
+            
+            // 时间周期选择
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentPeriod = this.getAttribute('data-period');
+                    updateChart();
+                });
+            });
+            
+            // 监管选项选择 - 场景一
+            document.querySelectorAll('.regulatory-option[data-scenario="1"]').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.regulatory-option[data-scenario="1"]').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            // 监管选项选择 - 场景二
+            document.querySelectorAll('.regulatory-option[data-scenario="2"]').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.regulatory-option[data-scenario="2"]').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            // 监管决策提交 - 场景一
+            document.getElementById('submit-regulatory-decision-1').addEventListener('click', function() {
+                const selectedOption = document.querySelector('.regulatory-option[data-scenario="1"].selected');
+                if (!selectedOption) {
+                    alert('请先选择一个监管措施');
+                    return;
+                }
+                
+                const optionId = selectedOption.getAttribute('data-option');
+                let outcomeText = '';
+                
+                switch(optionId) {
+                    case '1':
+                        outcomeText = `
+                            <p>您选择了<strong>加强交易监管</strong>。</p>
+                            <p><strong>市场反应：</strong> 市场投机行为受到抑制，相关股票波动率下降，市场情绪趋于理性。但部分投资者抱怨监管干预过多。</p>
+                            <p><strong>学习要点：</strong> 交易监管是防范市场操纵和异常波动的重要手段，但需要在维护市场秩序和保持市场活力之间取得平衡。</p>
+                        `;
+                        break;
+                    case '2':
+                        outcomeText = `
+                            <p>您选择了<strong>提高保证金要求</strong>。</p>
+                            <p><strong>市场反应：</strong> 杠杆资金迅速撤离，相关股票价格回调，市场风险得到释放。但部分合规投资者也受到波及。</p>
+                            <p><strong>学习要点：</strong> 杠杆管理是防范市场风险的重要工具，但需要精准施策，避免"一刀切"影响市场正常功能。</p>
+                        `;
+                        break;
+                    case '3':
+                        outcomeText = `
+                            <p>您选择了<strong>加强信息披露</strong>。</p>
+                            <p><strong>市场反应：</strong> 市场信息更加透明，投资者决策依据更加充分，市场定价效率提高。但部分公司信息披露成本增加。</p>
+                            <p><strong>学习要点：</strong> 信息披露是注册制改革的核心理念，提高信息透明度有助于减少市场投机，促进价值投资。</p>
+                        `;
+                        break;
+                    case '4':
+                        outcomeText = `
+                            <p>您选择了<strong>暂不干预</strong>。</p>
+                            <p><strong>市场反应：</strong> 市场继续自由波动，投机行为进一步加剧，最终引发较大幅度调整，部分投资者损失惨重。</p>
+                            <p><strong>学习要点：</strong> 监管需要前瞻性和及时性，过度放任可能积累系统性风险，适度的监管干预是必要的。</p>
+                        `;
+                        break;
+                }
+                
+                document.getElementById('regulatory-outcome-1').innerHTML = outcomeText;
+                document.getElementById('regulatory-result-1').style.display = 'block';
+            });
+            
+            // 监管决策提交 - 场景二
+            document.getElementById('submit-regulatory-decision-2').addEventListener('click', function() {
+                const selectedOption = document.querySelector('.regulatory-option[data-scenario="2"].selected');
+                if (!selectedOption) {
+                    alert('请先选择一个监管措施');
+                    return;
+                }
+                
+                const optionId = selectedOption.getAttribute('data-option');
+                let outcomeText = '';
+                
+                switch(optionId) {
+                    case '5':
+                        outcomeText = `
+                            <p>您选择了<strong>立案调查</strong>。</p>
+                            <p><strong>市场反应：</strong> 市场对监管果断行动表示肯定，投资者信心得到部分恢复。但调查过程可能较长，不确定性仍然存在。</p>
+                            <p><strong>学习要点：</strong> 严肃查处违法违规行为是维护市场诚信基础的关键，但需要确保证据充分、程序合法。</p>
+                        `;
+                        break;
+                    case '6':
+                        outcomeText = `
+                            <p>您选择了<strong>责令停牌</strong>。</p>
+                            <p><strong>市场反应：</strong> 防止了股价进一步暴跌，为投资者提供了冷静期。但长期停牌可能影响市场流动性。</p>
+                            <p><strong>学习要点：</strong> 停牌是应对极端情况的有效工具，但应谨慎使用，避免影响市场正常定价功能。</p>
+                        `;
+                        break;
+                    case '7':
+                        outcomeText = `
+                            <p>您选择了<strong>投资者保护</strong>。</p>
+                            <p><strong>市场反应：</strong> 受损投资者得到及时救助，市场对监管保护投资者权益的承诺更加信任。</p>
+                            <p><strong>学习要点：</strong> 投资者保护是监管的核心使命，健全的投资者赔偿机制是市场健康发展的重要保障。</p>
+                        `;
+                        break;
+                    case '8':
+                        outcomeText = `
+                            <p>您选择了<strong>加强市场教育</strong>。</p>
+                            <p><strong>市场反应：</strong> 投资者风险意识提高，但短期内无法解决当前危机，投资者损失进一步扩大。</p>
+                            <p><strong>学习要点：</strong> 投资者教育是长期工作，需要与即时监管措施相结合，才能有效保护投资者权益。</p>
+                        `;
+                        break;
+                }
+                
+                document.getElementById('regulatory-outcome-2').innerHTML = outcomeText;
+                document.getElementById('regulatory-result-2').style.display = 'block';
+            });
+            
+            // 分析题目提交
+            document.getElementById('submit-analysis').addEventListener('click', function() {
+                let score = 0;
+                const questions = document.querySelectorAll('.analysis-question');
+                
+                questions.forEach((question, index) => {
+                    const options = question.nextElementSibling.querySelectorAll('.analysis-option');
+                    let correctCount = 0;
+                    let selectedCorrectCount = 0;
+                    
+                    options.forEach(option => {
+                        if (option.hasAttribute('data-correct') && option.getAttribute('data-correct') === 'true') {
+                            correctCount++;
+                            if (option.classList.contains('selected')) {
+                                selectedCorrectCount++;
+                            }
+                        }
+                    });
+                    
+                    // 多选题目需要全部选对才能得分
+                    if (correctCount > 1) {
+                        if (selectedCorrectCount === correctCount) {
+                            let allCorrectSelected = true;
+                            options.forEach(option => {
+                                if (!option.hasAttribute('data-correct') || option.getAttribute('data-correct') === 'false') {
+                                    if (option.classList.contains('selected')) {
+                                        allCorrectSelected = false;
+                                    }
+                                }
+                            });
+                            if (allCorrectSelected) {
+                                score++;
+                            }
+                        }
+                    } else {
+                        // 单选题
+                        const selectedOption = question.nextElementSibling.querySelector('.analysis-option.selected');
+                        if (selectedOption && selectedOption.getAttribute('data-correct') === 'true') {
+                            score++;
+                        }
+                    }
+                });
+                
+                document.getElementById('analysis-score').textContent = score;
+                document.getElementById('analysis-result').style.display = 'block';
+                
+                let feedback = '';
+                if (score === 3) {
+                    feedback = '优秀！您对市场指数变化因素有深入的理解。';
+                } else if (score >= 2) {
+                    feedback = '良好！您对市场分析有基本把握，但还需要进一步学习。';
+                } else {
+                    feedback = '需要加强学习！建议重新学习市场指数和影响因素相关知识。';
+                }
+                
+                document.getElementById('analysis-feedback').textContent = feedback;
+            });
+            
+            // 分析选项选择
+            document.querySelectorAll('.analysis-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const question = this.closest('.analysis-options');
+                    const isMultiple = question.querySelectorAll('[data-correct="true"]').length > 1;
+                    
+                    if (isMultiple) {
+                        // 多选题目
+                        this.classList.toggle('selected');
+                    } else {
+                        // 单选题目
+                        question.querySelectorAll('.analysis-option').forEach(o => o.classList.remove('selected'));
+                        this.classList.add('selected');
+                    }
+                });
+            });
+            
+            // 初始化图表
+            initChart();
+            
+            // 初始化市场事件
+            renderMarketEvents();
+            
+            // 模拟市场数据更新
+            setInterval(updateMarketData, 5000);
+        }
+        
+        // 生成指数数据
+        function generateIndexData(baseValue, changePercent) {
+            const data = [];
+            const now = luxon.DateTime.now();
+            let value = baseValue / (1 + changePercent / 100); // 计算起始值
+            
+            // 生成过去30个数据点
+            for (let i = 30; i >= 0; i--) {
+                const date = now.minus({ minutes: i * 10 });
+                
+                // 随机波动
+                const randomChange = (Math.random() - 0.5) * 0.5;
+                value = value * (1 + randomChange / 100);
+                
+                data.push({
+                    x: date.toISO(),
+                    y: value
+                });
+            }
+            
+            return data;
+        }
+        
+        // 初始化图表
+        function initChart() {
+            const ctx = document.getElementById('index-chart').getContext('2d');
+            
+            const indexData = indices[currentIndex].data;
+            const change = indices[currentIndex].change;
+            const color = change >= 0 ? 'rgba(46, 204, 113, 1)' : 'rgba(231, 76, 60, 1)';
+            const bgColor = change >= 0 ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.1)';
+            
+            indexChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: indices[currentIndex].name,
+                        data: indexData,
+                        borderColor: color,
+                        backgroundColor: bgColor,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'minute',
+                                displayFormats: {
+                                    minute: 'HH:mm'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${indices[currentIndex].name}: ${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
+                    }
+                }
+            });
+        }
+        
+        // 更新图表
+        function updateChart() {
+            if (!indexChart) return;
+            
+            const indexData = indices[currentIndex].data;
+            const change = indices[currentIndex].change;
+            const color = change >= 0 ? 'rgba(46, 204, 113, 1)' : 'rgba(231, 76, 60, 1)';
+            const bgColor = change >= 0 ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.1)';
+            
+            indexChart.data.datasets[0].data = indexData;
+            indexChart.data.datasets[0].borderColor = color;
+            indexChart.data.datasets[0].backgroundColor = bgColor;
+            indexChart.data.datasets[0].label = indices[currentIndex].name;
+            
+            // 根据选择的时间周期调整X轴
+            let timeUnit, displayFormat;
+            switch(currentPeriod) {
+                case '1D':
+                    timeUnit = 'minute';
+                    displayFormat = 'HH:mm';
+                    break;
+                case '1W':
+                    timeUnit = 'hour';
+                    displayFormat = 'MM-dd HH:mm';
+                    break;
+                case '1M':
+                    timeUnit = 'day';
+                    displayFormat = 'MM-dd';
+                    break;
+                case '3M':
+                    timeUnit = 'week';
+                    displayFormat = 'MM-dd';
+                    break;
+                case '1Y':
+                    timeUnit = 'month';
+                    displayFormat = 'yyyy-MM';
+                    break;
+            }
+            
+            indexChart.options.scales.x.time.unit = timeUnit;
+            indexChart.options.scales.x.time.displayFormats[timeUnit] = displayFormat;
+            
+            indexChart.update();
+        }
+        
+        // 渲染市场事件
+        function renderMarketEvents() {
+            const container = document.getElementById('market-events-container');
+            container.innerHTML = '';
+            
+            marketEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'event-card';
+                
+                let impactClass = 'impact-neutral';
+                if (event.impact === 'positive') impactClass = 'impact-positive';
+                if (event.impact === 'negative') impactClass = 'impact-negative';
+                
+                eventElement.innerHTML = `
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-time">${event.time}</div>
+                    <div class="event-description">${event.description}</div>
+                    <div class="event-impact ${impactClass}">${getImpactText(event.impact)}</div>
+                `;
+                
+                container.appendChild(eventElement);
+            });
+        }
+        
+        // 获取影响文本
+        function getImpactText(impact) {
+            switch(impact) {
+                case 'positive': return '正面影响';
+                case 'negative': return '负面影响';
+                default: return '中性影响';
+            }
+        }
+        
+        // 更新市场数据（模拟实时更新）
+        function updateMarketData() {
+            // 随机更新指数数据（模拟市场波动）
+            Object.keys(indices).forEach(indexKey => {
+                const index = indices[indexKey];
+                const randomChange = (Math.random() - 0.5) * 0.2;
+                index.change += randomChange;
+                index.currentValue = index.currentValue * (1 + randomChange / 100);
+                
+                // 更新显示
+                document.getElementById(`${indexKey}-value`).textContent = index.currentValue.toFixed(2);
+                document.getElementById(`${indexKey}-change`).textContent = `${index.change >= 0 ? '+' : ''}${index.change.toFixed(2)}%`;
+                document.getElementById(`${indexKey}-change`).className = `index-change ${index.change >= 0 ? 'positive' : 'negative'}`;
+                
+                // 更新图表数据
+                const now = luxon.DateTime.now();
+                const lastValue = index.data[index.data.length - 1].y;
+                const newValue = lastValue * (1 + randomChange / 100);
+                
+                index.data.push({
+                    x: now.toISO(),
+                    y: newValue
+                });
+                
+                // 保持数据长度
+                if (index.data.length > 50) {
+                    index.data.shift();
+                }
+            });
+            
+            // 更新图表
+            if (indexChart) {
+                indexChart.update();
+            }
+        }
+        
+        // 初始化应用
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金融衍生品交易模拟 - 风险管理与衍生品应用</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: var(--light);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .derivative-selection {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .derivative-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--light);
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .derivative-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background: var(--accent);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: var(--light);
+        }
+        
+        .assets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .asset-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--secondary);
+            transition: transform 0.3s;
+        }
+        
+        .asset-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .asset-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .asset-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .asset-change {
+            font-size: 0.9rem;
+        }
+        
+        .asset-change.positive {
+            color: var(--success);
+        }
+        
+        .asset-change.negative {
+            color: var(--accent);
+        }
+        
+        .portfolio {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .portfolio-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .instructions {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .investment-history {
+            margin-top: 20px;
+        }
+        
+        .history-item {
+            background: var(--light);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .history-item.buy {
+            border-left: 4px solid var(--success);
+        }
+        
+        .history-item.sell {
+            border-left: 4px solid var(--accent);
+        }
+        
+        .case-study-timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .timeline-item {
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            height: 100%;
+            width: 4px;
+            background: var(--secondary);
+        }
+        
+        .timeline-date {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .risk-meter {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .risk-level {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+        
+        .risk-low {
+            background: var(--success);
+        }
+        
+        .risk-medium {
+            background: var(--warning);
+        }
+        
+        .risk-high {
+            background: var(--accent);
+        }
+        
+        .quiz-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+        
+        .quiz-options {
+            margin-top: 10px;
+        }
+        
+        .quiz-option {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quiz-option:hover {
+            background: #e0f0ff;
+        }
+        
+        .quiz-option.selected {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>金融衍生品交易模拟</h1>
+            <p class="subtitle">期货与期权交易实践 | 巴林银行事件案例分析 | 风险管理学习</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="knowledge">衍生品知识</button>
+            <button class="tab" data-tab="trading">模拟交易</button>
+            <button class="tab" data-tab="case-study">案例分析</button>
+            <button class="tab" data-tab="risk-management">风险管理</button>
+        </div>
+        
+        <div id="knowledge" class="tab-content active">
+            <div class="panel">
+                <h2 class="panel-title">金融衍生品基础知识</h2>
+                <div class="derivative-selection">
+                    <button class="derivative-btn active" data-type="futures">期货</button>
+                    <button class="derivative-btn" data-type="options">期权</button>
+                    <button class="derivative-btn" data-type="swaps">互换</button>
+                    <button class="derivative-btn" data-type="forwards">远期</button>
+                </div>
+                
+                <div id="futures-info" class="derivative-info">
+                    <h3>期货 (Futures)</h3>
+                    <p>期货是一种标准化的金融合约，买卖双方约定在未来某一特定时间，以特定价格交割一定数量的标的资产。</p>
+                    <div class="form-group">
+                        <h4>期货合约要素：</h4>
+                        <ul>
+                            <li>标的资产：可以是商品（原油、黄金）或金融资产（股票指数、利率）</li>
+                            <li>合约规模：每份合约代表的标的资产数量</li>
+                            <li>交割日期：合约到期的具体日期</li>
+                            <li>交割方式：实物交割或现金结算</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <h4>期货交易特点：</h4>
+                        <ul>
+                            <li>标准化合约，在交易所交易</li>
+                            <li>杠杆效应，只需支付保证金</li>
+                            <li>每日无负债结算（逐日盯市）</li>
+                            <li>可用于套期保值或投机</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="options-info" class="derivative-info" style="display: none;">
+                    <h3>期权 (Options)</h3>
+                    <p>期权是一种合约，赋予买方在未来某一特定时间以特定价格买入或卖出标的资产的权利，但没有义务。</p>
+                    <div class="form-group">
+                        <h4>期权类型：</h4>
+                        <ul>
+                            <li>看涨期权：赋予买方以执行价格购买标的资产的权利</li>
+                            <li>看跌期权：赋予买方以执行价格出售标的资产的权利</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <h4>期权要素：</h4>
+                        <ul>
+                            <li>标的资产：期权合约对应的资产</li>
+                            <li>执行价格：期权合约规定的买卖价格</li>
+                            <li>到期日：期权有效的最后日期</li>
+                            <li>期权费：买方支付给卖方的费用</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="swaps-info" class="derivative-info" style="display: none;">
+                    <h3>互换 (Swaps)</h3>
+                    <p>互换是一种双方约定在未来某一时期内交换现金流的金融合约。</p>
+                    <div class="form-group">
+                        <h4>常见互换类型：</h4>
+                        <ul>
+                            <li>利率互换：交换固定利率和浮动利率支付</li>
+                            <li>货币互换：交换不同货币的现金流</li>
+                            <li>信用违约互换：信用保护买方支付费用，卖方在信用事件发生时赔偿损失</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="forwards-info" class="derivative-info" style="display: none;">
+                    <h3>远期合约 (Forwards)</h3>
+                    <p>远期合约是买卖双方约定在未来某一时间以特定价格交易某种资产的非标准化合约。</p>
+                    <div class="form-group">
+                        <h4>远期合约特点：</h4>
+                        <ul>
+                            <li>非标准化，在场外交易</li>
+                            <li>双方协商确定合约条款</li>
+                            <li>存在对手方违约风险</li>
+                            <li>常用于外汇和大宗商品交易</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="trading" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">衍生品模拟交易</h2>
+                
+                <div class="derivative-selection">
+                    <button class="derivative-btn active" data-type="futures-trading">期货交易</button>
+                    <button class="derivative-btn" data-type="options-trading">期权交易</button>
+                </div>
+                
+                <div id="futures-trading" class="trading-interface">
+                    <div class="form-group">
+                        <label for="futures-contract">选择期货合约</label>
+                        <select id="futures-contract">
+                            <option value="crude-oil">原油期货 (CL)</option>
+                            <option value="gold">黄金期货 (GC)</option>
+                            <option value="sp500">标普500指数期货 (ES)</option>
+                            <option value="treasury">美国国债期货 (ZB)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="futures-action">交易方向</label>
+                        <select id="futures-action">
+                            <option value="long">做多 (买入)</option>
+                            <option value="short">做空 (卖出)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="futures-quantity">合约数量</label>
+                        <input type="number" id="futures-quantity" value="1" min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="futures-leverage">杠杆倍数</label>
+                        <select id="futures-leverage">
+                            <option value="5">5倍</option>
+                            <option value="10" selected>10倍</option>
+                            <option value="20">20倍</option>
+                            <option value="50">50倍</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" id="execute-futures">执行交易</button>
+                    
+                    <div class="result" id="futures-result">
+                        <p>交易结果将显示在这里</p>
+                    </div>
+                </div>
+                
+                <div id="options-trading" class="trading-interface" style="display: none;">
+                    <div class="form-group">
+                        <label for="options-type">期权类型</label>
+                        <select id="options-type">
+                            <option value="call">看涨期权 (Call)</option>
+                            <option value="put">看跌期权 (Put)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="options-contract">选择期权合约</label>
+                        <select id="options-contract">
+                            <option value="aapl-call">苹果公司看涨期权 (AAPL)</option>
+                            <option value="aapl-put">苹果公司看跌期权 (AAPL)</option>
+                            <option value="tsla-call">特斯拉看涨期权 (TSLA)</option>
+                            <option value="tsla-put">特斯拉看跌期权 (TSLA)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="options-action">交易方向</label>
+                        <select id="options-action">
+                            <option value="buy">买入期权</option>
+                            <option value="sell">卖出期权</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="options-quantity">合约数量</label>
+                        <input type="number" id="options-quantity" value="1" min="1">
+                    </div>
+                    
+                    <button class="btn" id="execute-options">执行交易</button>
+                    
+                    <div class="result" id="options-result">
+                        <p>交易结果将显示在这里</p>
+                    </div>
+                </div>
+                
+                <div class="portfolio">
+                    <h3>您的投资组合</h3>
+                    <div id="portfolio-container">
+                        <!-- 投资组合内容将通过JS动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="trading-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div id="case-study" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">巴林银行事件案例分析</h2>
+                
+                <div class="case-study-timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">1992年</div>
+                        <h3>尼克·李森被派往新加坡</h3>
+                        <p>巴林银行派遣尼克·李森前往新加坡国际货币交易所，负责套利交易。</p>
+                        <div class="risk-meter">
+                            <div class="risk-level risk-low" style="width: 20%"></div>
+                        </div>
+                        <p>风险水平: 低</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1992年7月</div>
+                        <h3>错误账户"88888"的创建</h3>
+                        <p>李森创建了错误账户"88888"，最初用于记录交易错误，后来成为隐藏亏损的工具。</p>
+                        <div class="risk-meter">
+                            <div class="risk-level risk-medium" style="width: 40%"></div>
+                        </div>
+                        <p>风险水平: 中</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1994年底</div>
+                        <h3>巨额亏损积累</h3>
+                        <p>李森通过错误账户隐藏的亏损已达到2亿英镑，他开始进行更大规模的投机交易试图挽回损失。</p>
+                        <div class="risk-meter">
+                            <div class="risk-level risk-high" style="width: 70%"></div>
+                        </div>
+                        <p>风险水平: 高</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1995年1月17日</div>
+                        <h3>阪神大地震</h3>
+                        <p>日本发生阪神大地震，日经指数大幅下跌，李森持有的日经指数期货多头头寸遭受巨大损失。</p>
+                        <div class="risk-meter">
+                            <div class="risk-level risk-high" style="width: 90%"></div>
+                        </div>
+                        <p>风险水平: 极高</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1995年2月23日</div>
+                        <h3>巴林银行崩溃</h3>
+                        <p>李森的投机行为导致巴林银行损失8.6亿英镑，超过银行资本金，最终导致这家有233年历史的银行倒闭。</p>
+                        <div class="risk-meter">
+                            <div class="risk-level risk-high" style="width: 100%"></div>
+                        </div>
+                        <p>风险水平: 灾难性</p>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>案例学习要点</h3>
+                    <ul>
+                        <li><strong>缺乏风险控制：</strong>巴林银行让李森同时负责交易和结算，违反了基本的内部控制原则</li>
+                        <li><strong>过度杠杆：</strong>李森使用了极高的杠杆，小幅市场波动就可能导致巨大损失</li>
+                        <li><strong>隐藏亏损：</strong>通过错误账户隐藏亏损，而不是及时止损</li>
+                        <li><strong>赌徒心态：</strong>试图通过更大规模的投机来挽回损失，导致恶性循环</li>
+                        <li><strong>监管缺失：</strong>银行管理层和监管机构未能及时发现风险</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div id="risk-management" class="tab-content">
+            <div class="panel">
+                <h2 class="panel-title">衍生品风险管理</h2>
+                
+                <div class="quiz-question">
+                    <h3>问题1: 以下哪项是期货交易中的主要风险管理工具？</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="true">A. 保证金制度和每日无负债结算</div>
+                        <div class="quiz-option">B. 长期持有策略</div>
+                        <div class="quiz-option">C. 分散投资于不同交易所</div>
+                        <div class="quiz-option">D. 只进行套期保值交易</div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question">
+                    <h3>问题2: 从巴林银行事件中，我们可以学到的最重要风险管理教训是什么？</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option">A. 避免使用杠杆</div>
+                        <div class="quiz-option">B. 只投资于熟悉的资产</div>
+                        <div class="quiz-option" data-correct="true">C. 建立有效的内部控制和职责分离</div>
+                        <div class="quiz-option">D. 避免在亚洲市场交易</div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question">
+                    <h3>问题3: 期权卖方面临的最大风险是？</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option">A. 时间价值衰减</div>
+                        <div class="quiz-option">B. 波动率风险</div>
+                        <div class="quiz-option" data-correct="true">C. 无限损失风险</div>
+                        <div class="quiz-option">D. 流动性风险</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" id="submit-quiz">提交答案</button>
+                
+                <div class="result" id="quiz-result" style="display: none;">
+                    <h3>测验结果</h3>
+                    <p>您的得分: <span id="quiz-score">0</span>/3</p>
+                    <p id="quiz-feedback"></p>
+                </div>
+                
+                <div class="panel">
+                    <h3>风险管理工具与策略</h3>
+                    <ul>
+                        <li><strong>止损订单：</strong>预设价格水平，当市场价格达到该水平时自动平仓</li>
+                        <li><strong>风险价值(VaR)：</strong>衡量在给定置信水平下，特定时间段内的最大潜在损失</li>
+                        <li><strong>压力测试：</strong>评估极端市场条件下的潜在损失</li>
+                        <li><strong>情景分析：</strong>分析特定事件对投资组合的影响</li>
+                        <li><strong>希腊字母风险度量：</strong>用于期权风险管理的Delta、Gamma、Vega、Theta等指标</li>
+                    </ul>
+                </div>
+                
+                <div class="panel">
+                    <h3>建立有效的风险管理框架</h3>
+                    <ol>
+                        <li>明确风险承受能力和投资目标</li>
+                        <li>建立适当的头寸规模限制</li>
+                        <li>实施严格的止损策略</li>
+                        <li>定期监控和评估风险敞口</li>
+                        <li>确保交易和结算职能分离</li>
+                        <li>建立独立的风险管理部门</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>学习目标</h3>
+            <ol>
+                <li>理解金融衍生品（期货、期权等）的基本概念和特性</li>
+                <li>掌握衍生品交易的基本操作和风险管理方法</li>
+                <li>通过巴林银行事件案例分析，理解衍生品交易中的风险和控制失效的后果</li>
+                <li>学习建立有效的风险管理框架和内部控制机制</li>
+            </ol>
+            <p><strong>学习重点：</strong>通过模拟交易和案例分析，深入理解衍生品的风险特征和风险管理的重要性。</p>
+        </div>
+    </div>
+
+    <script>
+        // 初始化函数
+        function init() {
+            // 标签页切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有标签页的活动状态
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // 设置当前标签页为活动状态
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 衍生品知识切换
+            document.querySelectorAll('.derivative-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的活动状态
+                    document.querySelectorAll('.derivative-btn').forEach(b => b.classList.remove('active'));
+                    // 隐藏所有信息
+                    document.querySelectorAll('.derivative-info').forEach(i => i.style.display = 'none');
+                    
+                    // 设置当前按钮为活动状态
+                    this.classList.add('active');
+                    const type = this.getAttribute('data-type');
+                    document.getElementById(`${type}-info`).style.display = 'block';
+                });
+            });
+            
+            // 交易界面切换
+            document.querySelectorAll('.derivative-btn[data-type$="trading"]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的活动状态
+                    document.querySelectorAll('.derivative-btn[data-type$="trading"]').forEach(b => b.classList.remove('active'));
+                    // 隐藏所有交易界面
+                    document.querySelectorAll('.trading-interface').forEach(i => i.style.display = 'none');
+                    
+                    // 设置当前按钮为活动状态
+                    this.classList.add('active');
+                    const type = this.getAttribute('data-type');
+                    document.getElementById(type).style.display = 'block';
+                });
+            });
+            
+            // 期货交易执行
+            document.getElementById('execute-futures').addEventListener('click', function() {
+                const contract = document.getElementById('futures-contract').value;
+                const action = document.getElementById('futures-action').value;
+                const quantity = parseInt(document.getElementById('futures-quantity').value);
+                const leverage = parseInt(document.getElementById('futures-leverage').value);
+                
+                let resultText = '';
+                if (action === 'long') {
+                    resultText = `您已买入${quantity}手${getContractName(contract)}期货合约，杠杆倍数${leverage}倍。`;
+                } else {
+                    resultText = `您已卖出${quantity}手${getContractName(contract)}期货合约，杠杆倍数${leverage}倍。`;
+                }
+                
+                resultText += `<br>注意：高杠杆交易可能带来巨大损失，请谨慎管理风险。`;
+                
+                document.getElementById('futures-result').innerHTML = resultText;
+                
+                // 添加到投资组合
+                addToPortfolio(contract, action, quantity, 'futures');
+            });
+            
+            // 期权交易执行
+            document.getElementById('execute-options').addEventListener('click', function() {
+                const type = document.getElementById('options-type').value;
+                const contract = document.getElementById('options-contract').value;
+                const action = document.getElementById('options-action').value;
+                const quantity = parseInt(document.getElementById('options-quantity').value);
+                
+                let resultText = '';
+                if (action === 'buy') {
+                    resultText = `您已买入${quantity}手${getOptionsName(contract)}期权。`;
+                    if (type === 'call') {
+                        resultText += `<br>作为期权买方，您的最大损失限于期权费。`;
+                    } else {
+                        resultText += `<br>作为看跌期权买方，您预期标的资产价格下跌。`;
+                    }
+                } else {
+                    resultText = `您已卖出${quantity}手${getOptionsName(contract)}期权。`;
+                    resultText += `<br>警告：作为期权卖方，您可能面临无限损失风险！`;
+                }
+                
+                document.getElementById('options-result').innerHTML = resultText;
+                
+                // 添加到投资组合
+                addToPortfolio(contract, action, quantity, 'options');
+            });
+            
+            // 测验提交
+            document.getElementById('submit-quiz').addEventListener('click', function() {
+                let score = 0;
+                const questions = document.querySelectorAll('.quiz-question');
+                
+                questions.forEach(question => {
+                    const selectedOption = question.querySelector('.quiz-option.selected');
+                    if (selectedOption && selectedOption.hasAttribute('data-correct')) {
+                        score++;
+                    }
+                });
+                
+                document.getElementById('quiz-score').textContent = score;
+                document.getElementById('quiz-result').style.display = 'block';
+                
+                let feedback = '';
+                if (score === 3) {
+                    feedback = '优秀！您对衍生品风险管理有很好的理解。';
+                } else if (score === 2) {
+                    feedback = '良好！您对衍生品风险管理有基本理解，但还需要进一步学习。';
+                } else {
+                    feedback = '需要加强学习！建议重新学习衍生品风险管理相关知识。';
+                }
+                
+                document.getElementById('quiz-feedback').textContent = feedback;
+            });
+            
+            // 测验选项选择
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除同问题中其他选项的选中状态
+                    const question = this.closest('.quiz-question');
+                    question.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+                    
+                    // 设置当前选项为选中状态
+                    this.classList.add('selected');
+                });
+            });
+            
+            // 初始化投资组合
+            initPortfolio();
+            
+            // 初始化交易图表
+            initTradingChart();
+        }
+        
+        // 获取合约名称
+        function getContractName(contract) {
+            const contracts = {
+                'crude-oil': '原油',
+                'gold': '黄金',
+                'sp500': '标普500指数',
+                'treasury': '美国国债'
+            };
+            return contracts[contract] || '未知合约';
+        }
+        
+        // 获取期权名称
+        function getOptionsName(contract) {
+            const contracts = {
+                'aapl-call': '苹果公司看涨',
+                'aapl-put': '苹果公司看跌',
+                'tsla-call': '特斯拉看涨',
+                'tsla-put': '特斯拉看跌'
+            };
+            return contracts[contract] || '未知期权';
+        }
+        
+        // 初始化投资组合
+        function initPortfolio() {
+            const container = document.getElementById('portfolio-container');
+            container.innerHTML = `
+                <div class="portfolio-item">
+                    <span>现金</span>
+                    <span>¥100,000</span>
+                </div>
+                <div class="portfolio-item">
+                    <span>总资产</span>
+                    <span>¥100,000</span>
+                </div>
+            `;
+        }
+        
+        // 添加到投资组合
+        function addToPortfolio(contract, action, quantity, type) {
+            // 在实际实现中，这里会更新投资组合数据
+            // 这里仅作演示
+            console.log(`添加到投资组合: ${contract}, ${action}, ${quantity}, ${type}`);
+        }
+        
+        // 初始化交易图表
+        function initTradingChart() {
+            const ctx = document.getElementById('trading-chart').getContext('2d');
+            
+            // 模拟价格数据
+            const labels = [];
+            const data = [];
+            let price = 100;
+            
+            for (let i = 0; i < 30; i++) {
+                labels.push(`Day ${i+1}`);
+                // 随机价格波动
+                price = price * (1 + (Math.random() - 0.5) * 0.05);
+                data.push(price);
+            }
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '标的资产价格',
+                        data: data,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 初始化应用
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
