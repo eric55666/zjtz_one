@@ -219,6 +219,48 @@
             font-size: 0.9rem;
         }
         
+        /* 修改超链接样式，参考百度风格 */
+        a {
+            color: #89746D; /* 百度链接的蓝色 */
+            text-decoration: none; /* 默认无下划线 */
+        }
+        
+        a:visited {
+            color: #681da8; /* 已访问链接的紫色 */
+        }
+        
+        a:hover {
+            text-decoration: underline; /* 鼠标悬停时显示下划线 */
+        }
+        
+        /* 确保章节内容中的链接样式正确 */
+        .chapter-sections a {
+            color: #89746D;
+            display: block;
+            width: 100%;
+        }
+        
+        .chapter-sections a:visited {
+            color: #681da8;
+        }
+        
+        .chapter-sections a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 子章节链接样式 */
+        .subsection-item a {
+            color: #89746D;
+        }
+        
+        .subsection-item a:visited {
+            color: #681da8;
+        }
+        
+        .subsection-item a:hover {
+            text-decoration: underline;
+        }
+        
         @media (max-width: 1200px) {
             .chapters-container {
                 flex-wrap: wrap;
@@ -460,6 +502,6 @@
         });
     </script>
 </body>
-
 </html>
+
 
