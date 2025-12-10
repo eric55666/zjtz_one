@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财报小侦探 | 上市公司财务分析学习</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        /* 游戏容器 */
+        .game-container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: white;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 8px solid white;
+        }
+        
+        /* 标题区域 */
+        .header {
+            background: linear-gradient(to right, #6a89cc, #4a69bd);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            border-bottom: 5px solid #4a69bd;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+        
+        /* 进度条 */
+        .progress-container {
+            padding: 15px 25px;
+            background-color: #f9f9f9;
+            border-bottom: 3px solid #e0e0e0;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            width: 0%;
+            border-radius: 6px;
+            transition: width 0.5s;
+        }
+        
+        /* 聊天区域 */
+        .chat-area {
+            height: 450px;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.8) 2px, transparent 2px),
+                radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.8) 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+        
+        /* 消息样式 - 头像和气泡结合 */
+        .message {
+            display: flex;
+            margin-bottom: 25px;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-ai {
+            justify-content: flex-start;
+        }
+        
+        .message-user {
+            justify-content: flex-end;
+        }
+        
+        /* 动漫风格头像 */
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin: 0 15px;
+            border: 5px solid white;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+        
+        .ai-avatar {
+            background: linear-gradient(135deg, #6a89cc, #4a69bd);
+            border-color: #6a89cc;
+        }
+        
+        .user-avatar {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            border-color: #ff9a9e;
+        }
+        
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-placeholder {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+        
+        /* 聊天气泡 */
+        .message-bubble {
+            max-width: 65%;
+            padding: 20px;
+            border-radius: 25px;
+            position: relative;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ai-bubble {
+            background-color: white;
+            color: #333;
+            border-left: 8px solid #6a89cc;
+            border-top-left-radius: 5px;
+        }
+        
+        .ai-bubble::before {
+            content: "";
+            position: absolute;
+            left: -20px;
+            top: 25px;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-right: 20px solid white;
+            z-index: 1;
+        }
+        
+        .user-bubble {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            color: white;
+            border-right: 8px solid #ff7e5f;
+            border-top-right-radius: 5px;
+        }
+        
+        .user-bubble::before {
+            content: "";
+            position: absolute;
+            right: -20px;
+            top: 25px;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-left: 20px solid #ff9a9e;
+            z-index: 1;
+        }
+        
+        /* 消息内容 */
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-sender {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .ai-sender {
+            color: #4a69bd;
+        }
+        
+        .user-sender {
+            color: #ff6b6b;
+        }
+        
+        /* 选项区域 */
+        .options-area {
+            padding: 25px;
+            background-color: white;
+            border-top: 3px solid #f0f0f0;
+        }
+        
+        .options-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #555;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .options-title::before {
+            content: "💡";
+            margin-right: 12px;
+            font-size: 1.8rem;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .option-btn {
+            padding: 18px;
+            background-color: #f0f8ff;
+            border: 3px solid #d1e7ff;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.05rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn:hover {
+            background-color: #e1f0ff;
+            border-color: #6a89cc;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(106, 137, 204, 0.15);
+        }
+        
+        .option-btn::after {
+            content: "✨";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .option-btn:hover::after {
+            opacity: 1;
+        }
+        
+        /* 输入区域 */
+        .input-area {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .input-area input {
+            flex: 1;
+            padding: 18px 20px;
+            border: 3px solid #d1e7ff;
+            border-radius: 20px;
+            font-size: 1.05rem;
+            font-family: inherit;
+            transition: all 0.3s;
+            background-color: #f9fdff;
+        }
+        
+        .input-area input:focus {
+            outline: none;
+            border-color: #6a89cc;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(106, 137, 204, 0.1);
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #6a89cc, #4a69bd);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            width: 65px;
+            cursor: pointer;
+            font-size: 1.8rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 15px rgba(106, 137, 204, 0.3);
+        }
+        
+        .send-btn:hover {
+            background: linear-gradient(135deg, #5a79bc, #3a59ad);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(106, 137, 204, 0.4);
+        }
+        
+        /* 特殊样式 */
+        .highlight {
+            background-color: #fff9c4;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #333;
+            border: 2px dashed #ffb74d;
+        }
+        
+        .website-link {
+            display: inline-block;
+            background-color: #e3f2fd;
+            border: 3px solid #bbdefb;
+            border-radius: 15px;
+            padding: 10px 15px;
+            margin: 8px 0;
+            color: #1565c0;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .website-link:hover {
+            background-color: #bbdefb;
+            transform: translateX(5px);
+        }
+        
+        .emoji {
+            font-size: 1.2rem;
+            margin: 0 3px;
+        }
+        
+        /* 模拟框 */
+        .simulation-box {
+            background-color: #f0f8ff;
+            border: 3px solid #6a89cc;
+            border-radius: 15px;
+            padding: 18px;
+            margin: 15px 0;
+        }
+        
+        .simulation-title {
+            font-weight: bold;
+            color: #4a69bd;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+        
+        .simulation-title::before {
+            content: "🖥️";
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        /* 完成界面 */
+        .completion-screen {
+            text-align: center;
+            padding: 40px 30px;
+            background: linear-gradient(135deg, #f0f8ff, #fff0f8);
+            display: none;
+        }
+        
+        .trophy {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .completion-title {
+            font-size: 2.8rem;
+            color: #4a69bd;
+            margin-bottom: 15px;
+        }
+        
+        .completion-text {
+            font-size: 1.3rem;
+            color: #555;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .restart-btn {
+            padding: 18px 35px;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-family: inherit;
+            box-shadow: 0 10px 20px rgba(255, 126, 95, 0.3);
+        }
+        
+        .restart-btn:hover {
+            background: linear-gradient(135deg, #ff6b4a, #fea46b);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(255, 126, 95, 0.4);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .chat-area {
+                height: 400px;
+                padding: 15px;
+            }
+            
+            .avatar {
+                width: 60px;
+                height: 60px;
+                margin: 0 10px;
+            }
+            
+            .avatar-placeholder {
+                font-size: 2rem;
+            }
+            
+            .message-bubble {
+                max-width: 75%;
+                padding: 15px;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .completion-title {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .game-container {
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .chat-area {
+                height: 350px;
+            }
+            
+            .avatar {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .avatar-placeholder {
+                font-size: 1.5rem;
+            }
+            
+            .message-bubble {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 标题区域 -->
+        <div class="header">
+            <h1><span class="emoji">🔍</span> 财报小侦探 <span class="emoji">📊</span></h1>
+            <p>上市公司财务分析互动学习</p>
+        </div>
+        
+        <!-- 进度条 -->
+        <div class="progress-container">
+            <div class="progress-text">
+                <span>学习进度</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+        
+        <!-- 聊天区域 -->
+        <div class="chat-area" id="chat-area">
+            <!-- 消息会通过JS动态添加 -->
+        </div>
+        
+        <!-- 选项区域 -->
+        <div class="options-area" id="options-area">
+            <div class="options-title" id="options-title">请选择你的回答：</div>
+            <div class="options-container" id="options-container">
+                <!-- 选项按钮会通过JS动态添加 -->
+            </div>
+            
+            <!-- 输入区域 -->
+            <div class="input-area" id="input-area">
+                <input type="text" id="user-input" placeholder="在这里输入你的回答..." autocomplete="off">
+                <button class="send-btn" id="send-btn">➤</button>
+            </div>
+        </div>
+        
+        <!-- 完成界面 -->
+        <div class="completion-screen" id="completion-screen">
+            <div class="trophy">🏆</div>
+            <h2 class="completion-title">恭喜完成学习！</h2>
+            <p class="completion-text">你已经掌握了上市公司年报的获取渠道和基本分析方法！</p>
+            
+            <div style="margin: 25px 0;">
+                <p><strong>记住这些官方年报下载渠道：</strong></p>
+                <a href="http://www.cninfo.com.cn" target="_blank" class="website-link">巨潮资讯网</a>
+                <a href="http://www.sse.com.cn" target="_blank" class="website-link">上海证券交易所</a>
+                <a href="http://www.szse.cn" target="_blank" class="website-link">深圳证券交易所</a>
+                <a href="http://www.bse.cn" target="_blank" class="website-link">北京证券交易所</a>
+            </div>
+            
+            <p class="completion-text">财务分析四步法：<br>
+            <span class="highlight">1. 获取年报</span> → 
+            <span class="highlight">2. 阅读关键章节</span> → 
+            <span class="highlight">3. 分析财务数据</span> → 
+            <span class="highlight">4. 做出投资判断</span></p>
+            
+            <button class="restart-btn" id="restart-btn">重新开始游戏</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据
+        const gameData = {
+            currentStep: 0,
+            totalSteps: 6,
+            userName: "小侦探",
+            userAvatar: "👨🎓",
+            progress: 0,
+            
+            steps: [
+                {
+                    title: "欢迎",
+                    aiMessage: "👋 <strong>你好！我是小财老师，你的财务分析助手。</strong><br><br>欢迎来到财报小侦探！在这里，你将学习如何获取和分析上市公司年报。<br><br>首先，请问怎么称呼你？",
+                    userOptions: [],
+                    inputPrompt: true,
+                    inputPlaceholder: "输入你的名字..."
+                },
+                {
+                    title: "年报的重要性",
+                    aiMessage: "很高兴认识你，<strong>${userName}</strong>！<br><br>在开始之前，我们需要了解为什么上市公司年报如此重要？<br><br>年报就像是公司的'体检报告'，包含了财务数据、经营情况、未来展望等关键信息！",
+                    userOptions: [
+                        "因为年报是法律要求披露的权威文件",
+                        "年报包含了公司完整的财务数据",
+                        "可以通过年报分析公司未来发展"
+                    ],
+                    correctOption: 0,
+                    explanation: "正确！年报是法定披露文件，具有法律效力，是最权威的公司信息源。当然，其他两点也很重要！"
+                },
+                {
+                    title: "年报获取渠道",
+                    aiMessage: "很好！现在我们来学习如何获取上市公司年报。<br><br>在中国，上市公司年报主要通过以下<strong>官方渠道</strong>披露：<br><br>" +
+                             "<div class='simulation-box'>" +
+                             "<div class='simulation-title'>官方年报获取渠道</div>" +
+                             "📍 <a href='http://www.cninfo.com.cn' target='_blank' class='website-link'>巨潮资讯网</a> - 证监会指定信息披露网站<br><br>" +
+                             "📍 <a href='http://www.sse.com.cn' target='_blank' class='website-link'>上海证券交易所</a>官网<br><br>" +
+                             "📍 <a href='http://www.szse.cn' target='_blank' class='website-link'>深圳证券交易所</a>官网<br>" +
+                             "</div><br>" +
+                             "这些网站都免费向公众开放，你可以查询和下载任何上市公司的年报！",
+                    userOptions: [
+                        "明白了！这些是官方权威渠道",
+                        "还有其他获取年报的方式吗？",
+                        "公司官网也有年报吗？"
+                    ],
+                    correctOption: 0,
+                    explanation: "正确！官方指定网站是最权威、最全面的渠道。公司官网也会有年报，但官方指定网站是法定披露渠道，信息最完整。"
+                },
+                {
+                    title: "实战演练",
+                    aiMessage: "现在让我们来一次实战演练！我们要在巨潮资讯网查找<strong>贵州茅台（股票代码：600519）</strong>的年报。<br><br>" +
+                             "<div class='simulation-box'>" +
+                             "<div class='simulation-title'>模拟操作步骤</div>" +
+                             "1️⃣ 访问 <a href='http://www.cninfo.com.cn' target='_blank' class='website-link'>www.cninfo.com.cn</a><br><br>" +
+                             "2️⃣ 在搜索框输入'600519'或'贵州茅台'<br><br>" +
+                             "3️⃣ 选择'定期报告'类别<br><br>" +
+                             "4️⃣ 找到最新年度报告并点击下载<br>" +
+                             "</div><br>" +
+                             "你觉得年报中哪个部分对投资者<strong>最重要</strong>？",
+                    userOptions: [
+                        "财务报告（数据最直观）",
+                        "经营情况讨论与分析",
+                        "公司治理情况"
+                    ],
+                    correctOption: 1,
+                    explanation: "很好！经营情况讨论与分析（MD&A）是管理层对公司经营的解读，结合财务报告一起看，能更全面地理解公司状况！"
+                },
+                {
+                    title: "年报关键章节",
+                    aiMessage: "年报就像一本厚厚的书，我们需要知道如何阅读重点章节！<br><br>" +
+                             "上市公司年报通常包含以下<strong>关键章节</strong>：<br><br>" +
+                             "📄 <strong>重要提示、目录和释义</strong> - 阅读前的必要了解<br><br>" +
+                             "📊 <strong>公司简介和主要财务指标</strong> - 公司基本情况和核心数据<br><br>" +
+                             "💬 <strong>经营情况讨论与分析</strong> - 管理层对经营成果的分析<br><br>" +
+                             "🏛️ <strong>公司治理</strong> - 公司治理结构和运作情况<br><br>" +
+                             "📈 <strong>财务报告</strong> - 经审计的财务报表及附注<br><br>" +
+                             "在这些章节中，哪个部分最能反映公司的<strong>真实盈利能力</strong>？",
+                    userOptions: [
+                        "利润表（显示公司赚了多少钱）",
+                        "现金流量表（显示现金收支）",
+                        "资产负债表（显示公司家底）"
+                    ],
+                    correctOption: 1,
+                    explanation: "答对了！现金流量表反映公司真实的现金收支情况，比利润更能体现盈利质量。但全面分析需要结合三张报表和附注信息哦！"
+                },
+                {
+                    title: "财务分析工具",
+                    aiMessage: "现在我们有了年报，还需要一些分析工具！以下是几个<strong>关键财务比率</strong>：<br><br>" +
+                             "🔧 <strong>盈利能力比率</strong> - 如净资产收益率(ROE)、毛利率<br><br>" +
+                             "⚖️ <strong>偿债能力比率</strong> - 如资产负债率、流动比率<br><br>" +
+                             "🚀 <strong>运营效率比率</strong> - 如存货周转率、应收账款周转率<br><br>" +
+                             "📈 <strong>估值比率</strong> - 如市盈率(PE)、市净率(PB)<br><br>" +
+                             "现在让我们进行一个小测验，检验你的学习成果！",
+                    userOptions: [],
+                    quiz: {
+                        question: "如果你想分析公司的<strong>短期偿债能力</strong>，应该查看哪个比率？",
+                        options: [
+                            "净资产收益率(ROE)",
+                            "流动比率",
+                            "毛利率"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "太棒了！流动比率反映公司用流动资产偿还短期债务的能力，是衡量短期偿债能力的重要指标！"
+                    }
+                }
+            ]
+        };
+        
+        // DOM元素
+        const chatArea = document.getElementById('chat-area');
+        const optionsContainer = document.getElementById('options-container');
+        const optionsTitle = document.getElementById('options-title');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const inputArea = document.getElementById('input-area');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const completionScreen = document.getElementById('completion-screen');
+        const restartBtn = document.getElementById('restart-btn');
+        const optionsArea = document.getElementById('options-area');
+        
+        // 创建动漫风格头像
+        function createAvatar(sender) {
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${sender}-avatar`;
+            
+            // 为AI助手和用户创建不同的动漫风格头像
+            if (sender === 'ai') {
+                // AI助手头像 - 老师形象
+                avatar.innerHTML = `
+                    <div class="avatar-placeholder">👩🏫</div>
+                `;
+            } else {
+                // 用户头像 - 学生形象
+                avatar.innerHTML = `
+                    <div class="avatar-placeholder">${gameData.userAvatar}</div>
+                `;
+            }
+            
+            return avatar;
+        }
+        
+        // 初始化游戏
+        function initGame() {
+            // 重置游戏状态
+            gameData.currentStep = 0;
+            gameData.progress = 0;
+            gameData.userName = "小侦探";
+            gameData.userAvatar = "👨🎓";
+            
+            // 清空聊天记录
+            chatArea.innerHTML = '';
+            optionsContainer.innerHTML = '';
+            
+            // 显示聊天区域，隐藏完成界面
+            optionsArea.style.display = 'block';
+            completionScreen.style.display = 'none';
+            
+            // 更新进度条
+            updateProgress();
+            
+            // 显示第一步消息
+            displayStep();
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            gameData.progress = (gameData.currentStep / gameData.totalSteps) * 100;
+            progressFill.style.width = `${gameData.progress}%`;
+            progressPercent.textContent = `${Math.round(gameData.progress)}%`;
+        }
+        
+        // 显示当前步骤
+        function displayStep() {
+            const step = gameData.steps[gameData.currentStep];
+            
+            // 替换消息中的变量
+            let aiMessage = step.aiMessage.replace(/\${userName}/g, gameData.userName);
+            
+            // 添加AI消息
+            addMessage(aiMessage, 'ai', '小财老师');
+            
+            // 如果是最后一步，显示完成界面
+            if (gameData.currentStep === gameData.totalSteps - 1) {
+                setTimeout(() => {
+                    completeGame();
+                }, 1500);
+                return;
+            }
+            
+            // 渲染用户选项
+            renderOptions(step);
+            
+            // 更新输入框提示
+            if (step.inputPrompt) {
+                userInput.placeholder = step.inputPlaceholder || "请输入...";
+                userInput.style.display = 'block';
+                userInput.focus();
+            } else {
+                userInput.style.display = 'none';
+            }
+        }
+        
+        // 添加消息到聊天窗口
+        function addMessage(message, sender, senderName) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${sender}`;
+            
+            // 创建头像
+            const avatar = createAvatar(sender);
+            
+            // 创建气泡
+            const messageBubble = document.createElement('div');
+            messageBubble.className = `message-bubble ${sender}-bubble`;
+            
+            // 创建发送者名称
+            const senderDiv = document.createElement('div');
+            senderDiv.className = `message-sender ${sender}-sender`;
+            senderDiv.textContent = senderName || (sender === 'ai' ? '小财老师' : gameData.userName);
+            
+            // 创建消息内容
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = message;
+            
+            // 组装气泡
+            messageBubble.appendChild(senderDiv);
+            messageBubble.appendChild(messageContent);
+            
+            // 根据发送者组装消息
+            if (sender === 'ai') {
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageBubble);
+            } else {
+                messageDiv.appendChild(messageBubble);
+                messageDiv.appendChild(avatar);
+            }
+            
+            chatArea.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        // 渲染选项
+        function renderOptions(step) {
+            optionsContainer.innerHTML = '';
+            
+            // 如果是测验步骤
+            if (step.quiz) {
+                optionsTitle.innerHTML = "💡 " + step.quiz.question;
+                const quizOptions = step.quiz.options;
+                quizOptions.forEach((option, index) => {
+                    const optionBtn = document.createElement('div');
+                    optionBtn.className = 'option-btn';
+                    optionBtn.textContent = option;
+                    optionBtn.addEventListener('click', () => handleQuizAnswer(index, step.quiz.correctAnswer, step.quiz.explanation));
+                    optionsContainer.appendChild(optionBtn);
+                });
+                return;
+            }
+            
+            // 普通选项步骤
+            if (step.userOptions && step.userOptions.length > 0) {
+                optionsTitle.innerHTML = "💡 请选择你的回答：";
+                step.userOptions.forEach((option, index) => {
+                    const optionBtn = document.createElement('div');
+                    optionBtn.className = 'option-btn';
+                    optionBtn.textContent = option;
+                    optionBtn.addEventListener('click', () => handleOptionClick(option, index, step.correctOption, step.explanation));
+                    optionsContainer.appendChild(optionBtn);
+                });
+            } else {
+                // 没有选项，直接显示输入框
+                optionsTitle.innerHTML = "💡 请输入你的回答：";
+            }
+        }
+        
+        // 处理选项点击
+        function handleOptionClick(option, index, correctIndex, explanation) {
+            // 添加用户消息
+            addMessage(option, 'user', gameData.userName);
+            
+            // 禁用所有选项
+            const optionButtons = document.querySelectorAll('.option-btn');
+            optionButtons.forEach(btn => {
+                btn.style.pointerEvents = 'none';
+            });
+            
+            // 检查答案（如果有正确答案）
+            if (correctIndex !== undefined) {
+                // 检查是否正确
+                const isCorrect = index === correctIndex;
+                
+                // 显示答案解释
+                setTimeout(() => {
+                    addMessage(explanation, 'ai', '小财老师');
+                    
+                    // 下一步
+                    setTimeout(() => {
+                        nextStep();
+                    }, 2000);
+                }, 800);
+            } else {
+                // 没有正确答案，直接下一步
+                setTimeout(() => {
+                    nextStep();
+                }, 800);
+            }
+        }
+        
+        // 处理测验答案
+        function handleQuizAnswer(selectedIndex, correctIndex, explanation) {
+            const options = document.querySelectorAll('.option-btn');
+            
+            // 显示正确答案和错误答案
+            options.forEach((option, index) => {
+                if (index === correctIndex) {
+                    option.style.backgroundColor = '#d4edda';
+                    option.style.borderColor = '#28a745';
+                } else if (index === selectedIndex && index !== correctIndex) {
+                    option.style.backgroundColor = '#f8d7da';
+                    option.style.borderColor = '#dc3545';
+                }
+                
+                // 禁用点击
+                option.style.pointerEvents = 'none';
+            });
+            
+            // 添加解释
+            setTimeout(() => {
+                addMessage(explanation, 'ai', '小财老师');
+                
+                // 下一步
+                setTimeout(() => {
+                    nextStep();
+                }, 2000);
+            }, 1000);
+        }
+        
+        // 下一步
+        function nextStep() {
+            if (gameData.currentStep < gameData.totalSteps - 1) {
+                gameData.currentStep++;
+                updateProgress();
+                setTimeout(() => {
+                    displayStep();
+                }, 500);
+            } else {
+                completeGame();
+            }
+        }
+        
+        // 完成游戏
+        function completeGame() {
+            // 显示完成界面
+            optionsArea.style.display = 'none';
+            completionScreen.style.display = 'block';
+            
+            // 添加最终消息
+            addMessage("我已经完成了学习，准备开始真正的财务分析了！", 'user', gameData.userName);
+        }
+        
+        // 处理用户输入
+        function handleUserInput() {
+            const input = userInput.value.trim();
+            if (!input) return;
+            
+            // 第一步是询问姓名
+            if (gameData.currentStep === 0) {
+                gameData.userName = input || "小侦探";
+                gameData.userAvatar = "👨🎓";
+                
+                addMessage(input, 'user', gameData.userName);
+                setTimeout(() => {
+                    nextStep();
+                }, 800);
+            }
+            
+            // 清空输入框
+            userInput.value = '';
+        }
+        
+        // 事件监听器
+        sendBtn.addEventListener('click', handleUserInput);
+        
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleUserInput();
+            }
+        });
+        
+        restartBtn.addEventListener('click', initGame);
+        
+        // 初始化游戏
+        initGame();
+    </script>
+</body>
+</html>
