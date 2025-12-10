@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上市公司财务分析互动学习游戏</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            border-bottom: 5px solid #2980b9;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-ai {
+            justify-content: flex-start;
+        }
+        
+        .message-user {
+            justify-content: flex-end;
+        }
+        
+        .message-bubble {
+            max-width: 75%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .ai-bubble {
+            background-color: #e3f2fd;
+            border-top-left-radius: 5px;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+        
+        .user-bubble {
+            background-color: #2196f3;
+            color: white;
+            border-top-right-radius: 5px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .ai-avatar {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .user-avatar {
+            background-color: #2ecc71;
+            color: white;
+            margin-right: 0;
+            margin-left: 10px;
+        }
+        
+        .input-container {
+            padding: 20px;
+            background-color: white;
+            border-top: 1px solid #eaeaea;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .option-btn {
+            padding: 10px 18px;
+            background-color: #f1f8ff;
+            border: 2px solid #d1e6ff;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .option-btn:hover {
+            background-color: #3498db;
+            color: white;
+            border-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-area input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .send-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .send-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 5px;
+        }
+        
+        .step {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ddd;
+            transition: background-color 0.3s;
+        }
+        
+        .step.active {
+            background-color: #3498db;
+        }
+        
+        .highlight {
+            background-color: #fff9c4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .website-link {
+            display: inline-block;
+            background-color: #f0f8ff;
+            border: 1px solid #cce7ff;
+            border-radius: 5px;
+            padding: 8px 12px;
+            margin: 5px 0;
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .website-link:hover {
+            background-color: #e6f2ff;
+            text-decoration: underline;
+        }
+        
+        .simulation-box {
+            background-color: #f8f9fa;
+            border: 2px dashed #adb5bd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .simulation-title {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .quiz-option {
+            background-color: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quiz-option:hover {
+            border-color: #3498db;
+            background-color: #f8fbff;
+        }
+        
+        .quiz-option.correct {
+            border-color: #2ecc71;
+            background-color: #e8f8f1;
+        }
+        
+        .quiz-option.incorrect {
+            border-color: #e74c3c;
+            background-color: #fdedec;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #eee;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .completion-message {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(to right, #e3f2fd, #f3e5f5);
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .completion-message h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        
+        .restart-btn {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .restart-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                height: 500px;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+            }
+            
+            .options {
+                flex-direction: column;
+            }
+            
+            .option-btn {
+                width: 100%;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> 上市公司财务分析互动学习</h1>
+            <p>证券投资学实验项目 - 年报获取与财务分析</p>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="chat-container" id="chat-container">
+                <!-- 聊天消息将通过JavaScript动态添加 -->
+            </div>
+            
+            <div class="input-container">
+                <div class="options" id="options-container">
+                    <!-- 选项按钮将通过JavaScript动态添加 -->
+                </div>
+                
+                <div class="input-area">
+                    <input type="text" id="user-input" placeholder="输入你的问题或选择上方选项..." autocomplete="off">
+                    <button class="send-btn" id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                
+                <div class="step-indicator" id="step-indicator">
+                    <!-- 步骤指示器将通过JavaScript动态添加 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="completion-message" id="completion-message">
+            <h3><i class="fas fa-trophy"></i> 恭喜完成学习！</h3>
+            <p>你已成功掌握上市公司年报的获取渠道和基本分析方法。</p>
+            <p>现在你可以访问以下网站下载真实年报进行实践：</p>
+            <div style="margin: 20px 0;">
+                <a href="http://www.cninfo.com.cn" target="_blank" class="website-link">巨潮资讯网 (证监会指定信息披露网站)</a><br>
+                <a href="http://www.sse.com.cn" target="_blank" class="website-link">上海证券交易所</a><br>
+                <a href="http://www.szse.cn" target="_blank" class="website-link">深圳证券交易所</a><br>
+                <a href="http://www.bse.cn" target="_blank" class="website-link">北京证券交易所</a>
+            </div>
+            <p>记住财务分析的关键步骤：获取年报 → 阅读重要章节 → 计算财务比率 → 综合分析判断</p>
+            <button class="restart-btn" id="restart-btn">重新开始学习</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态和数据
+        const gameData = {
+            currentStep: 0,
+            totalSteps: 6,
+            userName: "同学",
+            progress: 0,
+            
+            steps: [
+                {
+                    title: "欢迎与介绍",
+                    aiMessage: "你好！我是证券投资学数字教材的AI助手。今天我们将一起学习如何获取和分析上市公司年报。首先，请问怎么称呼你？",
+                    userOptions: [],
+                    inputPrompt: true,
+                    inputPlaceholder: "请输入你的姓名"
+                },
+                {
+                    title: "年报的重要性",
+                    aiMessage: "${userName}，很高兴认识你！上市公司年报是投资者了解公司经营状况最重要的文件。它包含了公司的财务数据、经营情况、未来展望等关键信息。<br><br>你知道为什么年报对投资者这么重要吗？",
+                    userOptions: [
+                        "因为年报是法律要求披露的，信息权威",
+                        "年报包含公司完整的财务数据",
+                        "可以通过年报分析公司未来发展",
+                        "以上都是"
+                    ],
+                    correctOption: 3,
+                    explanation: "完全正确！年报是法定披露文件，包含了公司完整的财务数据和经营信息，是投资者分析公司价值和未来前景的基础。"
+                },
+                {
+                    title: "年报获取渠道",
+                    aiMessage: "很好！现在我们来看看如何获取上市公司年报。在中国，上市公司年报主要通过以下官方渠道披露：<br><br>" +
+                             "1. <span class='highlight'>巨潮资讯网</span> - 证监会指定的信息披露网站<br>" +
+                             "2. <span class='highlight'>上海证券交易所</span>官网<br>" +
+                             "3. <span class='highlight'>深圳证券交易所</span>官网<br>" +
+                             "4. <span class='highlight'>北京证券交易所</span>官网<br><br>" +
+                             "这些网站都免费向公众开放，你可以查询和下载任何上市公司的年报。",
+                    userOptions: [
+                        "我了解了，这些是官方渠道",
+                        "还有其他渠道吗？",
+                        "我可以直接去公司官网找吗？"
+                    ],
+                    inputPrompt: false
+                },
+                {
+                    title: "实战模拟 - 查找贵州茅台年报",
+                    aiMessage: "现在我们来模拟在巨潮资讯网查找贵州茅台（股票代码：600519）2022年年报的过程。<br><br>" +
+                             "<div class='simulation-box'>" +
+                             "<div class='simulation-title'><i class='fas fa-desktop'></i> 模拟操作步骤：</div>" +
+                             "1. 访问 <a href='http://www.cninfo.com.cn' target='_blank' class='website-link'>www.cninfo.com.cn</a><br>" +
+                             "2. 在搜索框输入'600519'或'贵州茅台'<br>" +
+                             "3. 选择'定期报告'类别<br>" +
+                             "4. 找到'2022年年度报告'并点击下载<br>" +
+                             "</div><br>" +
+                             "你觉得年报中哪个部分对投资者最重要？",
+                    userOptions: [
+                        "董事长致辞",
+                        "财务报告",
+                        "重大事项",
+                        "经营情况讨论与分析"
+                    ],
+                    correctOption: 1,
+                    explanation: "财务报告确实是核心部分，但其他部分也很重要。实际上，<span class='highlight'>经营情况讨论与分析</span>（MD&A）是管理层对公司经营的解读，结合财务报告一起看更能全面理解公司状况。"
+                },
+                {
+                    title: "年报关键章节",
+                    aiMessage: "上市公司年报通常包含以下关键章节：<br><br>" +
+                             "1. <span class='highlight'>重要提示、目录和释义</span> - 阅读前的必要了解<br>" +
+                             "2. <span class='highlight'>公司简介和主要财务指标</span> - 公司基本情况和核心数据<br>" +
+                             "3. <span class='highlight'>经营情况讨论与分析</span> - 管理层对经营成果的分析<br>" +
+                             "4. <span class='highlight'>公司治理</span> - 公司治理结构和运作情况<br>" +
+                             "5. <span class='highlight'>财务报告</span> - 经审计的财务报表及附注<br><br>" +
+                             "这些章节中，你认为哪个章节最能反映公司的真实盈利能力？",
+                    userOptions: [
+                        "利润表",
+                        "资产负债表",
+                        "现金流量表",
+                        "财务报表附注"
+                    ],
+                    correctOption: 2,
+                    explanation: "现金流量表反映公司真实的现金收支情况，比利润更能体现盈利质量。但全面分析需要结合三张报表和附注信息。"
+                },
+                {
+                    title: "财务分析基础",
+                    aiMessage: "获取年报后，我们可以进行财务分析。以下是几个关键财务比率：<br><br>" +
+                             "<span class='highlight'>1. 盈利能力比率</span> - 如净资产收益率(ROE)、毛利率<br>" +
+                             "<span class='highlight'>2. 偿债能力比率</span> - 如资产负债率、流动比率<br>" +
+                             "<span class='highlight'>3. 运营效率比率</span> - 如存货周转率、应收账款周转率<br>" +
+                             "<span class='highlight'>4. 估值比率</span> - 如市盈率(PE)、市净率(PB)<br><br>" +
+                             "现在让我们进行一个小测验，检验你的学习成果。",
+                    userOptions: [],
+                    quiz: {
+                        question: "如果你想分析公司的短期偿债能力，应该查看哪个比率？",
+                        options: [
+                            "净资产收益率(ROE)",
+                            "流动比率",
+                            "毛利率",
+                            "市盈率(PE)"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "正确！流动比率反映公司用流动资产偿还短期债务的能力，是衡量短期偿债能力的重要指标。"
+                    }
+                }
+            ]
+        };
+        
+        // DOM元素
+        const chatContainer = document.getElementById('chat-container');
+        const optionsContainer = document.getElementById('options-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const stepIndicator = document.getElementById('step-indicator');
+        const progressBar = document.getElementById('progress');
+        const completionMessage = document.getElementById('completion-message');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        // 初始化游戏
+        function initGame() {
+            // 重置游戏状态
+            gameData.currentStep = 0;
+            gameData.progress = 0;
+            
+            // 清空聊天记录
+            chatContainer.innerHTML = '';
+            optionsContainer.innerHTML = '';
+            
+            // 隐藏完成消息
+            completionMessage.style.display = 'none';
+            document.querySelector('.content').style.display = 'flex';
+            
+            // 更新进度条
+            updateProgress();
+            
+            // 渲染步骤指示器
+            renderStepIndicator();
+            
+            // 显示第一步消息
+            displayStep();
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            gameData.progress = (gameData.currentStep / gameData.totalSteps) * 100;
+            progressBar.style.width = `${gameData.progress}%`;
+        }
+        
+        // 渲染步骤指示器
+        function renderStepIndicator() {
+            stepIndicator.innerHTML = '';
+            for (let i = 0; i < gameData.totalSteps; i++) {
+                const step = document.createElement('div');
+                step.className = `step ${i === gameData.currentStep ? 'active' : ''}`;
+                stepIndicator.appendChild(step);
+            }
+        }
+        
+        // 显示当前步骤
+        function displayStep() {
+            const step = gameData.steps[gameData.currentStep];
+            
+            // 替换消息中的变量
+            let aiMessage = step.aiMessage.replace("${userName}", gameData.userName);
+            
+            // 添加AI消息
+            addMessage(aiMessage, 'ai');
+            
+            // 渲染用户选项
+            renderOptions(step);
+            
+            // 更新输入框提示
+            if (step.inputPrompt) {
+                userInput.placeholder = step.inputPlaceholder || "请输入...";
+                userInput.focus();
+            } else {
+                userInput.placeholder = "请选择上方选项...";
+            }
+            
+            // 更新步骤指示器
+            updateStepIndicator();
+        }
+        
+        // 添加消息到聊天窗口
+        function addMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${sender}-avatar`;
+            
+            if (sender === 'ai') {
+                avatar.innerHTML = '<i class="fas fa-robot"></i>';
+                messageDiv.innerHTML = `
+                    ${avatar.outerHTML}
+                    <div class="message-bubble ai-bubble">${message}</div>
+                `;
+            } else {
+                avatar.innerHTML = '<i class="fas fa-user"></i>';
+                messageDiv.innerHTML = `
+                    <div class="message-bubble user-bubble">${message}</div>
+                    ${avatar.outerHTML}
+                `;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // 渲染选项
+        function renderOptions(step) {
+            optionsContainer.innerHTML = '';
+            
+            // 如果是测验步骤
+            if (step.quiz) {
+                const quizOptions = step.quiz.options;
+                quizOptions.forEach((option, index) => {
+                    const optionBtn = document.createElement('div');
+                    optionBtn.className = 'quiz-option';
+                    optionBtn.textContent = option;
+                    optionBtn.addEventListener('click', () => handleQuizAnswer(index, step.quiz.correctAnswer, step.quiz.explanation));
+                    optionsContainer.appendChild(optionBtn);
+                });
+                return;
+            }
+            
+            // 普通选项步骤
+            step.userOptions.forEach((option, index) => {
+                const optionBtn = document.createElement('div');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = option;
+                optionBtn.addEventListener('click', () => handleOptionClick(option, index, step.correctOption, step.explanation));
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+        
+        // 处理选项点击
+        function handleOptionClick(option, index, correctIndex, explanation) {
+            // 添加用户消息
+            addMessage(option, 'user');
+            
+            // 检查答案（如果有正确答案）
+            if (correctIndex !== undefined) {
+                if (index === correctIndex - 1) {
+                    // 正确答案
+                    setTimeout(() => {
+                        addMessage(`<i class="fas fa-check-circle" style="color:#2ecc71"></i> ${explanation || "回答正确！让我们继续学习。"}`, 'ai');
+                        
+                        // 下一步
+                        setTimeout(() => {
+                            nextStep();
+                        }, 1500);
+                    }, 500);
+                } else {
+                    // 错误答案
+                    setTimeout(() => {
+                        addMessage(`<i class="fas fa-exclamation-circle" style="color:#e74c3c"></i> 这个答案不完全准确。${explanation || "让我们看看正确答案是什么。"}`, 'ai');
+                        
+                        // 下一步
+                        setTimeout(() => {
+                            nextStep();
+                        }, 2000);
+                    }, 500);
+                }
+            } else {
+                // 没有正确答案，直接下一步
+                setTimeout(() => {
+                    nextStep();
+                }, 800);
+            }
+            
+            // 清空选项
+            optionsContainer.innerHTML = '';
+        }
+        
+        // 处理测验答案
+        function handleQuizAnswer(selectedIndex, correctIndex, explanation) {
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // 显示正确答案和错误答案
+            options.forEach((option, index) => {
+                if (index === correctIndex) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== correctIndex) {
+                    option.classList.add('incorrect');
+                }
+                
+                // 禁用点击
+                option.style.pointerEvents = 'none';
+            });
+            
+            // 添加解释
+            setTimeout(() => {
+                addMessage(explanation, 'ai');
+                
+                // 完成学习
+                setTimeout(() => {
+                    completeLearning();
+                }, 2000);
+            }, 1000);
+        }
+        
+        // 下一步
+        function nextStep() {
+            if (gameData.currentStep < gameData.totalSteps - 1) {
+                gameData.currentStep++;
+                updateProgress();
+                updateStepIndicator();
+                displayStep();
+            } else {
+                completeLearning();
+            }
+        }
+        
+        // 更新步骤指示器
+        function updateStepIndicator() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                if (index === gameData.currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+        
+        // 完成学习
+        function completeLearning() {
+            // 显示完成消息
+            document.querySelector('.content').style.display = 'none';
+            completionMessage.style.display = 'block';
+            
+            // 添加最终消息
+            addMessage(`<i class="fas fa-graduation-cap" style="color:#3498db"></i> 恭喜${gameData.userName}！你已经掌握了上市公司年报的获取渠道和基本分析方法。现在你可以访问真实网站下载年报进行实践了！`, 'ai');
+        }
+        
+        // 处理用户输入
+        function handleUserInput() {
+            const input = userInput.value.trim();
+            if (!input) return;
+            
+            // 第一步是询问姓名
+            if (gameData.currentStep === 0) {
+                gameData.userName = input || "同学";
+                addMessage(input, 'user');
+                setTimeout(() => {
+                    nextStep();
+                }, 800);
+            }
+            
+            // 清空输入框
+            userInput.value = '';
+        }
+        
+        // 事件监听器
+        sendBtn.addEventListener('click', handleUserInput);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleUserInput();
+            }
+        });
+        
+        restartBtn.addEventListener('click', initGame);
+        
+        // 初始化游戏
+        initGame();
+    </script>
+</body>
+</html>

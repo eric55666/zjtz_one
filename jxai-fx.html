@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上市公司年报深度剖析 - 证券投资学教学游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2a3c7f);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .professor {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 80px;
+            height: 80px;
+            background-color: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .content {
+            display: flex;
+            min-height: 600px;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(180deg, #34495e, #2c3e50);
+            color: white;
+            padding: 20px;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background-color: #f8f9fa;
+        }
+        
+        .game-area {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h3 {
+            color: #3498db;
+            margin: 15px 0;
+        }
+        
+        .step {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .download-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .download-option {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .download-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #3498db;
+        }
+        
+        .download-option.selected {
+            border-color: #3498db;
+            background-color: #e8f4fc;
+        }
+        
+        .download-icon {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-container {
+            margin-top: 20px;
+        }
+        
+        .quiz-question {
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .quiz-option {
+            padding: 12px 15px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #ddd;
+        }
+        
+        .quiz-option:hover {
+            background-color: #e1e1e1;
+        }
+        
+        .quiz-option.selected {
+            background-color: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 5px;
+            display: none;
+            font-weight: bold;
+        }
+        
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .learning-objectives {
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .objective-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .objective-icon {
+            color: #3498db;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .stock-ticker {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .ticker-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+        
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 30px;
+            background-color: #d4edda;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-step {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-step.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .sidebar-step:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-step-number {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .sidebar-step.active .sidebar-step-number {
+            background-color: white;
+            color: #3498db;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e8f4fc;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .download-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>上市公司年报深度剖析</h1>
+            <div class="subtitle">证券投资学教学游戏 - 掌握年报下载与财务分析</div>
+            <div class="professor">👨‍🏫</div>
+        </header>
+        
+        <div class="content">
+            <div class="sidebar">
+                <h2>课程导航</h2>
+                <div class="sidebar-step active" onclick="showStep(1)">
+                    <span class="sidebar-step-number">1</span>
+                    <span>年报重要性</span>
+                </div>
+                <div class="sidebar-step" onclick="showStep(2)">
+                    <span class="sidebar-step-number">2</span>
+                    <span>下载渠道</span>
+                </div>
+                <div class="sidebar-step" onclick="showStep(3)">
+                    <span class="sidebar-step-number">3</span>
+                    <span>关键财务指标</span>
+                </div>
+                <div class="sidebar-step" onclick="showStep(4)">
+                    <span class="sidebar-step-number">4</span>
+                    <span>案例分析</span>
+                </div>
+                <div class="sidebar-step" onclick="showStep(5)">
+                    <span class="sidebar-step-number">5</span>
+                    <span>知识测验</span>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                
+                <h3>学习目标</h3>
+                <ul>
+                    <li>了解上市公司年报的重要性</li>
+                    <li>掌握年报下载的官方渠道</li>
+                    <li>识别关键财务指标</li>
+                    <li>学会初步财务分析技巧</li>
+                </ul>
+                
+                <h3>重点难点</h3>
+                <ul>
+                    <li>区分官方与非官方信息渠道</li>
+                    <li>理解三大财务报表的关系</li>
+                    <li>财务比率分析与解读</li>
+                    <li>识别财务异常信号</li>
+                </ul>
+            </div>
+            
+            <div class="main-content">
+                <div class="game-area" id="step1">
+                    <h2>第一步：认识上市公司年报</h2>
+                    <div class="step">
+                        <p><strong>上市公司年报</strong>是投资者了解公司经营状况、财务状况和发展前景的最重要信息来源。它包含了公司过去一年的经营成果、财务状况和未来展望。</p>
+                        <p>年报通常包括：公司简介、主要财务数据、管理层讨论与分析、公司治理报告、财务报告等重要内容。</p>
+                    </div>
+                    
+                    <h3>为什么年报分析如此重要？</h3>
+                    <ul>
+                        <li>了解公司的真实盈利能力</li>
+                        <li>评估公司的财务健康状况</li>
+                        <li>识别潜在的投资风险</li>
+                        <li>做出明智的投资决策</li>
+                    </ul>
+                    
+                    <button class="btn" onclick="showStep(2)">下一步：学习下载渠道</button>
+                </div>
+                
+                <div class="game-area hidden" id="step2">
+                    <h2>第二步：上市公司年报下载渠道</h2>
+                    <div class="step">
+                        <p>在中国，上市公司年报主要通过以下官方渠道发布。请记住，官方渠道的信息最可靠、最及时。</p>
+                    </div>
+                    
+                    <h3>请选择正确的官方下载渠道：</h3>
+                    <div class="download-options">
+                        <div class="download-option" onclick="selectOption(this, true)">
+                            <div class="download-icon">📊</div>
+                            <h4>巨潮资讯网</h4>
+                            <p>中国证监会指定信息披露网站</p>
+                        </div>
+                        <div class="download-option" onclick="selectOption(this, true)">
+                            <div class="download-icon">🏢</div>
+                            <h4>上海证券交易所</h4>
+                            <p>上交所上市公司信息披露</p>
+                        </div>
+                        <div class="download-option" onclick="selectOption(this, true)">
+                            <div class="download-icon">🏛️</div>
+                            <h4>深圳证券交易所</h4>
+                            <p>深交所上市公司信息披露</p>
+                        </div>
+                        <div class="download-option" onclick="selectOption(this, false)">
+                            <div class="download-icon">📰</div>
+                            <h4>财经新闻网站</h4>
+                            <p>非官方渠道，信息可能不完整</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feedback incorrect" id="downloadFeedback">
+                        请注意：财经新闻网站不是官方指定信息披露渠道，信息可能不完整或有时滞。
+                    </div>
+                    
+                    <button class="btn" id="nextStep2" onclick="showStep(3)">下一步：学习财务指标</button>
+                </div>
+                
+                <div class="game-area hidden" id="step3">
+                    <h2>第三步：关键财务指标分析</h2>
+                    <div class="step">
+                        <p>年报中的财务报告部分包含三大报表：资产负债表、利润表和现金流量表。我们需要从中提取关键指标进行分析。</p>
+                    </div>
+                    
+                    <div class="stock-ticker">
+                        <div class="ticker-content">
+                            📈 贵州茅台 2022年报：营业收入 1241亿元 ↗️ 净利润 627亿元 ↗️ 毛利率 91.6% ↗️ 资产负债率 22.3% ↘️ 经营活动现金流量净额 640亿元 ↗️
+                        </div>
+                    </div>
+                    
+                    <h3>关键财务指标：</h3>
+                    <div class="step">
+                        <h4>盈利能力指标</h4>
+                        <ul>
+                            <li><strong>营业收入</strong>：公司主营业务产生的收入</li>
+                            <li><strong>净利润</strong>：公司税后利润</li>
+                            <li><strong>毛利率</strong>：(营业收入-营业成本)/营业收入</li>
+                            <li><strong>净利率</strong>：净利润/营业收入</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <h4>偿债能力指标</h4>
+                        <ul>
+                            <li><strong>资产负债率</strong>：总负债/总资产</li>
+                            <li><strong>流动比率</strong>：流动资产/流动负债</li>
+                            <li><strong>速动比率</strong>：(流动资产-存货)/流动负债</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <h4>营运能力指标</h4>
+                        <ul>
+                            <li><strong>应收账款周转率</strong>：营业收入/平均应收账款</li>
+                            <li><strong>存货周转率</strong>：营业成本/平均存货</li>
+                            <li><strong>总资产周转率</strong>：营业收入/平均总资产</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn" onclick="showStep(4)">下一步：案例分析</button>
+                </div>
+                
+                <div class="game-area hidden" id="step4">
+                    <h2>第四步：案例分析 - 贵州茅台年报</h2>
+                    <div class="step">
+                        <p>让我们以贵州茅台2022年年报为例，进行简单的财务分析。</p>
+                    </div>
+                    
+                    <h3>贵州茅台2022年关键财务数据</h3>
+                    <table>
+                        <tr>
+                            <th>指标</th>
+                            <th>2022年</th>
+                            <th>2021年</th>
+                            <th>变化</th>
+                        </tr>
+                        <tr>
+                            <td>营业收入(亿元)</td>
+                            <td>1,241</td>
+                            <td>1,061</td>
+                            <td style="color:green; font-weight:bold;">+16.9%</td>
+                        </tr>
+                        <tr>
+                            <td>净利润(亿元)</td>
+                            <td>627</td>
+                            <td>525</td>
+                            <td style="color:green; font-weight:bold;">+19.4%</td>
+                        </tr>
+                        <tr>
+                            <td>毛利率</td>
+                            <td>91.6%</td>
+                            <td>91.5%</td>
+                            <td style="color:green; font-weight:bold;">+0.1%</td>
+                        </tr>
+                        <tr>
+                            <td>资产负债率</td>
+                            <td>22.3%</td>
+                            <td>23.4%</td>
+                            <td style="color:green; font-weight:bold;">-1.1%</td>
+                        </tr>
+                    </table>
+                    
+                    <h3>分析要点：</h3>
+                    <ul>
+                        <li>营业收入和净利润均实现双位数增长，显示公司持续成长</li>
+                        <li>毛利率超过90%，说明公司产品具有极强的定价能力</li>
+                        <li>资产负债率较低，财务结构稳健</li>
+                        <li>经营活动现金流量充沛，盈利质量高</li>
+                    </ul>
+                    
+                    <button class="btn" onclick="showStep(5)">下一步：知识测验</button>
+                </div>
+                
+                <div class="game-area hidden" id="step5">
+                    <h2>第五步：知识测验</h2>
+                    <div class="step">
+                        <p>现在让我们测试一下您对上市公司年报分析的掌握程度。</p>
+                    </div>
+                    
+                    <div class="quiz-container">
+                        <div class="quiz-question">1. 以下哪个是中国证监会指定的上市公司信息披露网站？</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'A')">A. 新浪财经</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'B')">B. 巨潮资讯网</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'C')">C. 东方财富网</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'D')">D. 腾讯财经</div>
+                        </div>
+                        <div class="feedback hidden" id="feedback1"></div>
+                        
+                        <div class="quiz-question">2. 以下哪项不是盈利能力指标？</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'A')">A. 毛利率</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'B')">B. 净利率</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'C')">C. 资产负债率</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'D')">D. 营业收入增长率</div>
+                        </div>
+                        <div class="feedback hidden" id="feedback2"></div>
+                        
+                        <div class="quiz-question">3. 资产负债率的计算公式是？</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'A')">A. 总负债/总资产</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'B')">B. 总资产/总负债</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'C')">C. 净利润/总资产</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, 'D')">D. 流动资产/流动负债</div>
+                        </div>
+                        <div class="feedback hidden" id="feedback3"></div>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="checkAnswers()">提交答案</button>
+                    <button class="btn btn-warning hidden" id="restartBtn" onclick="restartGame()">重新开始</button>
+                    
+                    <div class="success-message hidden" id="successMessage">
+                        <div class="success-icon">🎉</div>
+                        <h2>恭喜！您已完成上市公司年报分析学习</h2>
+                        <p>您已经掌握了年报下载渠道和基本财务分析方法。现在可以尝试下载一家您感兴趣的上市公司年报进行实际分析！</p>
+                        <button class="btn" onclick="showSummary()">查看学习总结</button>
+                    </div>
+                </div>
+                
+                <div class="learning-objectives hidden" id="summary">
+                    <h2>学习总结</h2>
+                    
+                    <h3>学习目标达成情况：</h3>
+                    <div class="objective-item">
+                        <span class="objective-icon">✓</span>
+                        <span>了解上市公司年报的重要性 - <strong>已完成</strong></span>
+                    </div>
+                    <div class="objective-item">
+                        <span class="objective-icon">✓</span>
+                        <span>掌握年报下载的官方渠道 - <strong>已完成</strong></span>
+                    </div>
+                    <div class="objective-item">
+                        <span class="objective-icon">✓</span>
+                        <span>识别关键财务指标 - <strong>已完成</strong></span>
+                    </div>
+                    <div class="objective-item">
+                        <span class="objective-icon">✓</span>
+                        <span>学会初步财务分析技巧 - <strong>已完成</strong></span>
+                    </div>
+                    
+                    <h3>重点难点回顾：</h3>
+                    <div class="step">
+                        <p><strong>官方信息渠道：</strong>巨潮资讯网、上海证券交易所、深圳证券交易所是官方指定的信息披露渠道，信息最可靠。</p>
+                        <p><strong>三大财务报表：</strong>资产负债表反映公司在某一时点的财务状况；利润表反映公司在一定期间的经营成果；现金流量表反映公司现金流入流出情况。</p>
+                        <p><strong>财务比率分析：</strong>通过计算各种财务比率，可以评估公司的盈利能力、偿债能力、营运能力和成长能力。</p>
+                        <p><strong>财务异常信号：</strong>关注收入与现金流不匹配、应收账款异常增加、存货周转率下降等可能预示问题的信号。</p>
+                    </div>
+                    
+                    <h3>下一步学习建议：</h3>
+                    <ul>
+                        <li>选择2-3家同行业公司，下载其年报进行对比分析</li>
+                        <li>关注年报中的"管理层讨论与分析"部分，了解公司战略</li>
+                        <li>学习更深入的财务分析技巧，如杜邦分析</li>
+                        <li>关注公司治理结构和关联交易等非财务信息</li>
+                    </ul>
+                    
+                    <button class="btn" onclick="restartGame()">重新开始游戏</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let quizAnswers = {
+            '1': null,
+            '2': null,
+            '3': null
+        };
+        const correctAnswers = {
+            '1': 'B',
+            '2': 'C',
+            '3': 'A'
+        };
+        
+        function showStep(step) {
+            document.getElementById('step' + currentStep).classList.add('hidden');
+            document.getElementById('step' + step).classList.remove('hidden');
+            currentStep = step;
+            
+            // 更新进度条
+            const progress = (step / 5) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            // 更新侧边栏活动状态
+            document.querySelectorAll('.sidebar-step').forEach((el, index) => {
+                if (index + 1 === step) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+            
+            // 如果是第二步，重置选择状态
+            if (step === 2) {
+                resetDownloadOptions();
+            }
+        }
+        
+        function selectOption(element, isOfficial = true) {
+            // 移除所有选项的选中状态
+            const options = document.querySelectorAll('.download-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 添加当前选项的选中状态
+            element.classList.add('selected');
+            
+            // 显示反馈
+            const feedback = document.getElementById('downloadFeedback');
+            if (!isOfficial) {
+                feedback.classList.remove('hidden');
+                feedback.classList.add('incorrect');
+                feedback.textContent = "请注意：财经新闻网站不是官方指定信息披露渠道，信息可能不完整或有时滞。";
+            } else {
+                feedback.classList.remove('hidden');
+                feedback.classList.add('correct');
+                feedback.textContent = "正确！这是官方指定的信息披露渠道，信息可靠、及时。";
+            }
+        }
+        
+        function resetDownloadOptions() {
+            const options = document.querySelectorAll('.download-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById('downloadFeedback').classList.add('hidden');
+        }
+        
+        function selectQuizOption(element, answer) {
+            // 获取问题编号
+            const questionContainer = element.closest('.quiz-options').previousElementSibling;
+            const questionText = questionContainer.textContent;
+            const questionNum = questionText.charAt(0);
+            
+            quizAnswers[questionNum] = answer;
+            
+            // 移除同组其他选项的选中状态
+            const options = element.parentElement.querySelectorAll('.quiz-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 添加当前选项的选中状态
+            element.classList.add('selected');
+        }
+        
+        function checkAnswers() {
+            let allCorrect = true;
+            let correctCount = 0;
+            
+            for (let i = 1; i <= 3; i++) {
+                const feedback = document.getElementById('feedback' + i);
+                if (quizAnswers[i] === correctAnswers[i]) {
+                    feedback.textContent = "正确！";
+                    feedback.classList.remove('incorrect');
+                    feedback.classList.add('correct');
+                    correctCount++;
+                } else {
+                    feedback.textContent = "错误！正确答案是: " + correctAnswers[i];
+                    feedback.classList.remove('correct');
+                    feedback.classList.add('incorrect');
+                    allCorrect = false;
+                }
+                feedback.classList.remove('hidden');
+            }
+            
+            if (allCorrect) {
+                document.getElementById('successMessage').classList.remove('hidden');
+                document.getElementById('restartBtn').classList.remove('hidden');
+            } else {
+                alert(`您答对了 ${correctCount} 题，还需要继续努力！`);
+            }
+        }
+        
+        function showSummary() {
+            document.getElementById('step5').classList.add('hidden');
+            document.getElementById('summary').classList.remove('hidden');
+        }
+        
+        function restartGame() {
+            currentStep = 1;
+            quizAnswers = {
+                '1': null,
+                '2': null,
+                '3': null
+            };
+            
+            // 隐藏所有步骤，显示第一步
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById('step' + i).classList.add('hidden');
+            }
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('summary').classList.add('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
+            document.getElementById('restartBtn').classList.add('hidden');
+            
+            // 重置进度条
+            document.getElementById('progress').style.width = '20%';
+            
+            // 重置侧边栏活动状态
+            document.querySelectorAll('.sidebar-step').forEach((el, index) => {
+                if (index === 0) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+            
+            // 重置测验选项
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            quizOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            const feedbacks = document.querySelectorAll('.feedback');
+            feedbacks.forEach(feedback => {
+                feedback.classList.add('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
