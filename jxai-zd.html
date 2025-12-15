@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上市公司年报分析助手 | 证券投资学实验项目</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Segoe UI', 'Comic Sans MS', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f7ff;
+            background-image: 
+                radial-gradient(#c1dfff 1px, transparent 1px),
+                radial-gradient(#c1dfff 1px, transparent 1px);
+            background-size: 40px 40px, 80px 80px;
+            background-position: 0 0, 20px 20px;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 35px;
+            box-shadow: 0 25px 50px rgba(255, 152, 0, 0.2);
+            overflow: hidden;
+            border: 10px solid #FF9800;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);
+            color: white;
+            padding: 30px 35px;
+            text-align: center;
+            border-bottom: 10px dashed #4CAF50;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.15);
+            color: #fff;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header::after {
+            content: "📈 📊 💹";
+            display: block;
+            font-size: 2.8rem;
+            margin-top: 20px;
+        }
+        
+        .chat-container {
+            display: flex;
+            height: 650px;
+        }
+        
+        .character-side {
+            width: 40%;
+            background: linear-gradient(180deg, #E8F5E9 0%, #F1F8E9 100%);
+            padding: 35px 25px;
+            border-right: 8px dotted #4CAF50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .character-section {
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        
+        .character-title {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            border: 3px solid #FF9800;
+        }
+        
+        .character-avatar-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .character-avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            animation: bounce 2s infinite;
+        }
+        
+        .judy-avatar {
+            border: 8px solid #4CAF50;
+            background: linear-gradient(145deg, #FFECB3, #FFD54F);
+        }
+        
+        .nick-avatar {
+            border: 8px solid #FF9800;
+            background: linear-gradient(145deg, #FFCCBC, #FF8A65);
+        }
+        
+        .character-info {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: 5px solid #4CAF50;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .nick-info {
+            border-color: #FF9800;
+        }
+        
+        .character-info h3 {
+            color: #4CAF50;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .nick-info h3 {
+            color: #FF9800;
+        }
+        
+        .character-info p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .chat-side {
+            width: 60%;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8fafc;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chat-header::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 12px;
+            background-color: #FF9800;
+            bottom: 0;
+            left: 0;
+        }
+        
+        .chat-header i {
+            margin-right: 15px;
+            font-size: 2.2rem;
+        }
+        
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 25px;
+            background-color: white;
+            border-radius: 0 0 20px 20px;
+            border: 5px solid #C8E6C9;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+        }
+        
+        .message {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .message-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            font-size: 35px;
+        }
+        
+        .judy-message-avatar {
+            border: 5px solid #4CAF50;
+            background: linear-gradient(145deg, #FFECB3, #FFD54F);
+        }
+        
+        .nick-message-avatar {
+            border: 5px solid #FF9800;
+            background: linear-gradient(145deg, #FFCCBC, #FF8A65);
+        }
+        
+        .message-content {
+            background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+            padding: 20px 25px;
+            border-radius: 25px;
+            border-top-left-radius: 0;
+            max-width: 80%;
+            box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.05);
+            position: relative;
+            border: 3px solid #C8E6C9;
+        }
+        
+        .message-content::before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 15px 20px 15px 0;
+            border-color: transparent #E8F5E9 transparent transparent;
+            left: -20px;
+            top: 15px;
+        }
+        
+        .message.nick .message-content {
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFECB3 100%);
+            border-top-left-radius: 25px;
+            border-top-right-radius: 0;
+            border: 3px solid #FFCC80;
+        }
+        
+        .message.nick .message-content::before {
+            left: auto;
+            right: -20px;
+            border-width: 15px 0 15px 20px;
+            border-color: transparent transparent transparent #FFF3E0;
+        }
+        
+        .message.nick {
+            flex-direction: row-reverse;
+        }
+        
+        .message.nick .message-avatar {
+            margin-right: 0;
+            margin-left: 20px;
+        }
+        
+        .message.nick .message-content {
+            text-align: right;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .option {
+            background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+            border: 4px solid #4CAF50;
+            border-radius: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 0 rgba(76, 175, 80, 0.3);
+        }
+        
+        .option:hover {
+            background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 0 rgba(76, 175, 80, 0.3);
+        }
+        
+        .option:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 0 rgba(76, 175, 80, 0.3);
+        }
+        
+        .option-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background-color: #FF9800;
+            border-radius: 50%;
+            margin-right: 20px;
+            font-weight: bold;
+            color: #333;
+            border: 4px solid #4CAF50;
+            font-size: 1.5rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+            border-top: 10px dashed #4CAF50;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .emoji {
+            font-size: 2rem;
+            margin: 0 8px;
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .typing-indicator {
+            display: inline-block;
+            background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+            padding: 15px 25px;
+            border-radius: 25px;
+            border-top-left-radius: 0;
+            border: 3px solid #C8E6C9;
+        }
+        
+        .typing-dots {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .typing-dots span {
+            height: 14px;
+            width: 14px;
+            margin: 0 4px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-15px); }
+        }
+        
+        .highlight {
+            background-color: #FFF3E0;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            color: #333;
+            border: 2px solid #FF9800;
+        }
+        
+        .source-link {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 3px dotted #4CAF50;
+            transition: all 0.3s;
+        }
+        
+        .source-link:hover {
+            color: #FF9800;
+            border-bottom: 3px solid #FF9800;
+        }
+        
+        .bubble {
+            position: absolute;
+            background-color: #C8E6C9;
+            border-radius: 50%;
+            opacity: 0.2;
+            z-index: 1;
+            animation: bubble-float 20s infinite linear;
+        }
+        
+        @keyframes bubble-float {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); }
+            25% { transform: translateY(-30px) translateX(15px) rotate(90deg); }
+            50% { transform: translateY(-15px) translateX(30px) rotate(180deg); }
+            75% { transform: translateY(-40px) translateX(-15px) rotate(270deg); }
+            100% { transform: translateY(0) translateX(0) rotate(360deg); }
+        }
+        
+        @media (max-width: 1100px) {
+            .chat-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .character-side, .chat-side {
+                width: 100%;
+            }
+            
+            .character-side {
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 8px dotted #4CAF50;
+                padding: 25px;
+            }
+            
+            .character-section {
+                width: 50%;
+                margin-bottom: 0;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .character-side {
+                flex-direction: column;
+            }
+            
+            .character-section {
+                width: 100%;
+                margin-bottom: 30px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .option {
+                font-size: 1.1rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 上市公司年报分析助手 📊</h1>
+            <p>证券投资学实验项目 - 让我们一起来学习如何下载和分析上市公司年报吧！</p>
+        </div>
+        
+        <div class="chat-container">
+            <div class="character-side">
+                <div class="character-section">
+                    <div class="character-title">🐰 朱迪老师</div>
+                    <div class="character-avatar-container">
+                        <div class="character-avatar judy-avatar">🐰</div>
+                    </div>
+                    <div class="character-info">
+                        <h3>朱迪老师</h3>
+                        <p>证券投资学动漫助手</p>
+                        <p>帮你掌握年报下载与分析</p>
+                        <p>📈 专业财务分析向导</p>
+                        <p>💡 随时解答你的疑问</p>
+                    </div>
+                </div>
+                
+                <div class="character-section">
+                    <div class="character-title">🦊 尼克同学</div>
+                    <div class="character-avatar-container">
+                        <div class="character-avatar nick-avatar">🦊</div>
+                    </div>
+                    <div class="character-info nick-info">
+                        <h3>尼克同学</h3>
+                        <p>证券投资学学习者</p>
+                        <p>正在学习年报分析方法</p>
+                        <p>🎯 希望掌握实操技能</p>
+                        <p>💪 努力成为投资达人</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-side">
+                <div class="chat-header">
+                    <i class="fas fa-comments"></i> 与朱迪老师的对话
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <!-- 聊天消息会在这里动态生成 -->
+                </div>
+                
+                <div class="options-container" id="optionsContainer">
+                    <!-- 选项会在这里动态生成 -->
+                    <div class="option" data-option="1">
+                        <span class="option-number">1</span>
+                        <span>我大概知道一些，但不确定是不是全部 📄</span>
+                    </div>
+                    <div class="option" data-option="2">
+                        <span class="option-number">2</span>
+                        <span>完全不清楚，请告诉我怎么找！ 🤷</span>
+                    </div>
+                    <div class="option" data-option="3">
+                        <span class="option-number">3</span>
+                        <span>我知道怎么找，想直接学怎么分析 📊</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>证券投资学实验项目 | 上市公司财务分析章节 | 设计：尼克与朱迪助手 <span class="emoji">💰</span></p>
+        </div>
+    </div>
+
+    <script>
+        // 对话数据 - 调整为更幽默搞笑的风格
+        const dialogues = {
+            1: {
+                question: "嘿！那么我们来补全一下你的知识库吧！📚 上市公司年报的官方下载地方主要有这几个：",
+                answer: `
+                    <p><span class="highlight">1. 官方信息披露网站：</span></p>
+                    <ul>
+                        <li><a href="http://www.cninfo.com.cn" target="_blank" class="source-link">巨潮资讯网</a> (证监会指定的信息发布地) 📰</li>
+                        <li><a href="http://www.sse.com.cn" target="_blank" class="source-link">上海证券交易所</a> (上交所上市的公司在这里) 🏛️</li>
+                        <li><a href="http://www.szse.cn" target="_blank" class="source-link">深圳证券交易所</a> (深交所上市的公司在这里) 🏢</li>
+                    </ul>
+                    <p><span class="highlight">2. 公司官网：</span>大部分公司会在官网的"投资者关系"部分放出来 📈</p>
+                    <p><span class="highlight">3. 财经数据平台：</span>比如东方财富、同花顺这些金融软件 💻</p>
+                    <p>你觉得哪个用起来最顺手呢？😊</p>
+                `,
+                options: [
+                    {text: "官方网站最靠谱！ 🏛️", next: "official"},
+                    {text: "我想学怎么分析年报内容 📊", next: "analysis"},
+                    {text: "能展示一下具体操作吗？ 👨‍💻", next: "demo"}
+                ]
+            },
+            2: {
+                question: "没问题！这正是我们要搞明白的核心内容！🎯",
+                answer: `
+                    <p>上市公司年报是<span class="highlight">最重要的公开财务信息</span>，获取的地方主要有：</p>
+                    <p><span class="emoji">📍</span> <span class="highlight">官方渠道：</span></p>
+                    <ul>
+                        <li><a href="http://www.cninfo.com.cn" target="_blank" class="source-link">巨潮资讯网</a> - 证监会指定的信息发布地 📋</li>
+                        <li>上海/深圳证券交易所官网 🏛️</li>
+                    </ul>
+                    <p><span class="emoji">🌐</span> <span class="highlight">公司官网：</span>通常在"投资者关系"栏目里</p>
+                    <p><span class="emoji">💼</span> <span class="highlight">财经软件：</span>比如东方财富、同花顺这些</p>
+                    <p>这里面，<span class="highlight">巨潮资讯网</span>是最全、最靠谱的地方！✨</p>
+                    <p>你想先了解哪个地方的具体用法？</p>
+                `,
+                options: [
+                    {text: "我想学用巨潮资讯网 📑", next: "cninfo"},
+                    {text: "公司官网的投资者关系部分 🏢", next: "website"},
+                    {text: "直接开始学分析年报内容吧！ 📊", next: "analysis"}
+                ]
+            },
+            3: {
+                question: "很好！那我们直接进入财务分析环节吧！📈",
+                answer: `
+                    <p>上市公司年报分析主要包括这几个核心部分：</p>
+                    <p><span class="emoji">1️⃣</span> <span class="highlight">财务报告三张表：</span></p>
+                    <ul>
+                        <li><span class="highlight">资产负债表</span> - 公司的"体检报告" 🩺</li>
+                        <li><span class="highlight">利润表</span> - 公司的"成绩单" 💰</li>
+                        <li><span class="highlight">现金流量表</span> - 公司的"血液报告" 💸</li>
+                    </ul>
+                    <p><span class="emoji">2️⃣</span> <span class="highlight">关键财务比率分析：</span></p>
+                    <ul>
+                        <li>盈利能力指标（毛利率、净利率）📈</li>
+                        <li>偿债能力指标（资产负债率、流动比率）🛡️</li>
+                        <li>运营能力指标（存货周转率、应收账款周转率）⚙️</li>
+                    </ul>
+                    <p>你想先了解哪个部分呢？</p>
+                `,
+                options: [
+                    {text: "学财务报告三张表 📑", next: "statements"},
+                    {text: "了解关键财务比率分析 🔢", next: "ratios"},
+                    {text: "我想看一个完整的分析例子 🏢", next: "case"}
+                ]
+            },
+            official: {
+                question: "完全正确！官方渠道最值得信任！🏛️",
+                answer: `
+                    <p><span class="emoji">✅</span> 用官方渠道的好处：</p>
+                    <ul>
+                        <li><span class="highlight">信息最新最准</span> - 法定发布渠道 📅</li>
+                        <li><span class="highlight">格式统一规范</span> - 方便比较分析 📋</li>
+                        <li><span class="highlight">历史数据完整</span> - 能拿到多年年报 🗂️</li>
+                    </ul>
+                    <p><span class="emoji">🔍</span> 在巨潮资讯网找年报的步骤：</p>
+                    <ol>
+                        <li>进网站后，在搜索框输公司名或代码 🔎</li>
+                        <li>选"定期报告"类别 📄</li>
+                        <li>筛选报告年份和类型（年报、季报等）🗓️</li>
+                        <li>点"公告原文"就能看或下载 📥</li>
+                    </ol>
+                    <p>是不是很轻松？现在你想：</p>
+                `,
+                options: [
+                    {text: "接着学财务分析方法 📊", next: "analysis"},
+                    {text: "我想看一个查找例子演示 🎬", next: "demo"},
+                    {text: "了解其他获取渠道 🌐", next: "other"}
+                ]
+            },
+            cninfo: {
+                question: "很棒的选择！巨潮资讯网是最常用的官方渠道！📊",
+                answer: `
+                    <p><span class="emoji">🎯</span> 巨潮资讯网使用指南：</p>
+                    <p>1. 访问 <a href="http://www.cninfo.com.cn" target="_blank" class="source-link">www.cninfo.com.cn</a> 🌐</p>
+                    <p>2. 在首页搜索框输公司名或代码（如：贵州茅台 600519）🔍</p>
+                    <p>3. 进公司页面后，点"公告"选项卡 📑</p>
+                    <p>4. 在左边筛选条件里选：
+                        <br>- 公告类型：<span class="highlight">定期报告</span>
+                        <br>- 报告期间：选年份 📅
+                        <br>- 报告类型：<span class="highlight">年度报告</span>
+                    </p>
+                    <p>5. 找到对应的年报后，点"PDF原文"就能下载 📥</p>
+                    <p><span class="emoji">💡</span> 小提示：可以同时下最近3-5年的年报做对比分析！</p>
+                    <p>接下来你想学什么？</p>
+                `,
+                options: [
+                    {text: "学年报的核心分析内容 📈", next: "analysis"},
+                    {text: "了解其他获取渠道 🏢", next: "other"},
+                    {text: "我想练习一下查找操作 🧪", next: "practice"}
+                ]
+            },
+            analysis: {
+                question: "太好了！现在我们来学怎么分析年报！📊",
+                answer: `
+                    <p><span class="emoji">🎓</span> 年报分析的关键步骤：</p>
+                    <p><span class="highlight">第一步：整体了解</span></p>
+                    <ul>
+                        <li>读"公司简介和主要财务指标"部分 🏢</li>
+                        <li>看"经营情况讨论与分析"了解公司方向 🧭</li>
+                    </ul>
+                    <p><span class="highlight">第二步：财务报告分析</span></p>
+                    <ul>
+                        <li><span class="highlight">资产负债表：</span>关注资产结构、负债情况 💼</li>
+                        <li><span class="highlight">利润表：</span>分析收入增长、赚钱能力 📈</li>
+                        <li><span class="highlight">现金流量表：</span>评估现金流质量、自由现金流 💰</li>
+                    </ul>
+                    <p><span class="highlight">第三步：财务比率分析</span></p>
+                    <ul>
+                        <li>算关键比率，做横向纵向比较 📊</li>
+                        <li>和同行业公司做对比分析 ↔️</li>
+                    </ul>
+                    <p>你想深入了解哪个部分？</p>
+                `,
+                options: [
+                    {text: "学财务报告三张表 📑", next: "statements"},
+                    {text: "了解关键财务比率 🔢", next: "ratios"},
+                    {text: "看一个完整的分析例子 🏢", next: "case"}
+                ]
+            },
+            statements: {
+                question: "财务报告三张表是年报分析的核心！📑",
+                answer: `
+                    <p><span class="emoji">📋</span> <span class="highlight">资产负债表</span> - 公司的"财务快照"</p>
+                    <ul>
+                        <li><span class="highlight">资产：</span>公司有什么（现金、存货、固定资产等）💵</li>
+                        <li><span class="highlight">负债：</span>公司欠什么（借款、应付账款等）💳</li>
+                        <li><span class="highlight">所有者权益：</span>真正属于股东的部分 👑</li>
+                    </ul>
+                    <p><span class="emoji">📈</span> <span class="highlight">利润表</span> - 公司的"成绩单"</p>
+                    <ul>
+                        <li>显示一段时间内公司的收入、成本和利润 📊</li>
+                        <li>关注：营业收入增长率、毛利率、净利率 📐</li>
+                    </ul>
+                    <p><span class="emoji">💸</span> <span class="highlight">现金流量表</span> - 公司的"血液流动"</p>
+                    <ul>
+                        <li>经营、投资、筹资活动现金流量 🔄</li>
+                        <li>"现金为王" - 赚钱的公司也可能因现金流问题出状况！⚠️</li>
+                    </ul>
+                    <p>接下来想了解什么？</p>
+                `,
+                options: [
+                    {text: "学关键财务比率分析 🔢", next: "ratios"},
+                    {text: "看一个完整的分析例子 🏢", next: "case"},
+                    {text: "我想练习获取年报操作 📥", next: "practice"}
+                ]
+            },
+            case: {
+                question: "让我们来看一个简单的分析例子吧！🏢",
+                answer: `
+                    <p><span class="emoji">📊</span> <span class="highlight">模拟分析例子：XYZ科技公司年报分析</span></p>
+                    <p><span class="highlight">1. 基本信息：</span>主营业务：智能设备制造，上市时间：2018年 📱</p>
+                    <p><span class="highlight">2. 财务数据摘要（2022年年报）：</span></p>
+                    <ul>
+                        <li>营业收入：50亿元（同比增长25%）📈</li>
+                        <li>净利润：8亿元（同比增长20%）💰</li>
+                        <li>资产负债率：45%（行业平均：60%）🛡️</li>
+                        <li>毛利率：35%（行业平均：30%）📐</li>
+                    </ul>
+                    <p><span class="highlight">3. 初步分析结论：</span></p>
+                    <ul>
+                        <li>公司成长性不错，收入利润双增长 ✅</li>
+                        <li>财务结构稳健，负债水平低于行业平均 ✅</li>
+                        <li>赚钱能力较强，毛利率高于行业平均 ✅</li>
+                    </ul>
+                    <p><span class="emoji">💡</span> 实际分析中，还需要结合行业趋势、公司方向等因素综合分析！</p>
+                    <p>现在你对年报分析有基本了解了吗？</p>
+                `,
+                options: [
+                    {text: "是的，我想实践一下获取操作 📥", next: "practice"},
+                    {text: "我还想了解更多财务比率 🔢", next: "ratios"},
+                    {text: "重新学获取渠道知识 🏛️", next: "restart"}
+                ]
+            },
+            practice: {
+                question: "实践是最好的学习方式！让我们来练习一下吧！🧪",
+                answer: `
+                    <p><span class="emoji">🎯</span> <span class="highlight">模拟练习任务：</span></p>
+                    <p>请尝试在巨潮资讯网找"贵州茅台"（代码：600519）2022年的年度报告</p>
+                    <p><span class="highlight">练习步骤：</span></p>
+                    <ol>
+                        <li>打开 <a href="http://www.cninfo.com.cn" target="_blank" class="source-link">巨潮资讯网</a> 🌐</li>
+                        <li>在搜索框输"600519"或"贵州茅台" 🔍</li>
+                        <li>进公司页面，点"公告"选项卡 📑</li>
+                        <li>筛选条件：定期报告、2022年、年度报告 📅</li>
+                        <li>找到"2022年年度报告"，点查看或下载 📥</li>
+                    </ol>
+                    <p><span class="emoji">💡</span> 提示：实际操作中，你还可以尝试下不同年份的报告做对比分析！</p>
+                    <p>完成后，你可以：</p>
+                `,
+                options: [
+                    {text: "我完成了！接着学分析方法 📊", next: "analysis"},
+                    {text: "我想重新学获取渠道知识 🏛️", next: "restart"},
+                    {text: "查看完整的实验总结 📝", next: "summary"}
+                ]
+            }
+        };
+
+        // 初始化聊天
+        document.addEventListener('DOMContentLoaded', function() {
+            const optionsContainer = document.getElementById('optionsContainer');
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // 添加初始朱迪消息 - 更幽默的版本
+            addMessage("嗨！尼克同学你好！👋 我是朱迪，你的证券投资学小助手！<br><br>今天我们要一起搞明白怎么获取和分析<span class='highlight'>上市公司年报</span>！<br><br>首先，你知道从哪里可以找到上市公司的年报吗？🤔", 'judy');
+            
+            // 添加选项点击事件
+            optionsContainer.addEventListener('click', function(e) {
+                const optionElement = e.target.closest('.option');
+                if (!optionElement) return;
+                
+                const optionNum = optionElement.getAttribute('data-option');
+                handleOptionClick(optionNum);
+            });
+            
+            // 处理选项点击
+            function handleOptionClick(optionNum) {
+                // 添加用户消息（尼克）
+                const userOptionText = document.querySelector(`.option[data-option="${optionNum}"] span:nth-child(2)`).textContent;
+                addMessage(userOptionText, 'nick');
+                
+                // 禁用选项
+                disableOptions();
+                
+                // 显示AI正在输入（朱迪）
+                showTypingIndicator();
+                
+                // 延迟显示AI回复
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    
+                    if (optionNum === 'restart') {
+                        // 重新开始对话
+                        restartConversation();
+                        return;
+                    }
+                    
+                    if (optionNum === 'summary') {
+                        // 显示总结
+                        showSummary();
+                        return;
+                    }
+                    
+                    const dialogue = dialogues[optionNum];
+                    if (dialogue) {
+                        addMessage(dialogue.question + dialogue.answer, 'judy');
+                        
+                        // 更新选项
+                        updateOptions(dialogue.options);
+                    }
+                }, 1500);
+            }
+            
+            // 添加消息到聊天
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender === 'nick' ? 'nick' : ''}`;
+                
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = sender === 'judy' ? 'message-avatar judy-message-avatar' : 'message-avatar nick-message-avatar';
+                avatarDiv.innerHTML = sender === 'judy' ? '🐰' : '🦊';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.innerHTML = sender === 'judy' ? text : `<p>${text}</p>`;
+                
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(contentDiv);
+                
+                chatMessages.appendChild(messageDiv);
+                
+                // 滚动到底部
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 显示输入指示器
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message';
+                typingDiv.id = 'typingIndicator';
+                
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'message-avatar judy-message-avatar';
+                avatarDiv.innerHTML = '🐰';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'typing-indicator';
+                contentDiv.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+                
+                typingDiv.appendChild(avatarDiv);
+                typingDiv.appendChild(contentDiv);
+                
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 移除输入指示器
+            function removeTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            // 禁用选项
+            function disableOptions() {
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.6';
+                });
+            }
+            
+            // 启用选项
+            function enableOptions() {
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    option.style.pointerEvents = 'auto';
+                    option.style.opacity = '1';
+                });
+            }
+            
+            // 更新选项
+            function updateOptions(options) {
+                const optionsContainer = document.getElementById('optionsContainer');
+                optionsContainer.innerHTML = '';
+                
+                options.forEach((option, index) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    optionDiv.setAttribute('data-option', option.next);
+                    
+                    const numberSpan = document.createElement('span');
+                    numberSpan.className = 'option-number';
+                    numberSpan.textContent = index + 1;
+                    
+                    const textSpan = document.createElement('span');
+                    textSpan.textContent = option.text;
+                    
+                    optionDiv.appendChild(numberSpan);
+                    optionDiv.appendChild(textSpan);
+                    
+                    optionsContainer.appendChild(optionDiv);
+                });
+                
+                enableOptions();
+            }
+            
+            // 重新开始对话
+            function restartConversation() {
+                // 清空聊天消息
+                chatMessages.innerHTML = '';
+                
+                // 重新添加初始朱迪消息
+                addMessage("嗨！尼克同学你好！👋 我是朱迪，你的证券投资学小助手！<br><br>今天我们要一起搞明白怎么获取和分析<span class='highlight'>上市公司年报</span>！<br><br>首先，你知道从哪里可以找到上市公司的年报吗？🤔", 'judy');
+                
+                // 重新添加初始选项
+                const optionsContainer = document.getElementById('optionsContainer');
+                optionsContainer.innerHTML = `
+                    <div class="option" data-option="1">
+                        <span class="option-number">1</span>
+                        <span>我大概知道一些，但不确定是不是全部 📄</span>
+                    </div>
+                    <div class="option" data-option="2">
+                        <span class="option-number">2</span>
+                        <span>完全不清楚，请告诉我怎么找！ 🤷</span>
+                    </div>
+                    <div class="option" data-option="3">
+                        <span class="option-number">3</span>
+                        <span>我知道怎么找，想直接学怎么分析 📊</span>
+                    </div>
+                `;
+                
+                enableOptions();
+            }
+            
+            // 显示总结 - 幽默版
+            function showSummary() {
+                addMessage(`
+                    <p><span class="emoji">🎉</span> <span class="highlight">实验项目总结</span></p>
+                    <p>通过这次学习，你应该掌握了：</p>
+                    <p><span class="highlight">1. 年报获取渠道：</span></p>
+                    <ul>
+                        <li>官方渠道：巨潮资讯网、交易所网站 🏛️</li>
+                        <li>公司官网：投资者关系部分 🏢</li>
+                        <li>财经数据平台：东方财富、同花顺这些 💻</li>
+                    </ul>
+                    <p><span class="highlight">2. 年报分析核心内容：</span></p>
+                    <ul>
+                        <li>财务报告三张表 📑</li>
+                        <li>关键财务比率分析 🔢</li>
+                        <li>综合分析例子 📊</li>
+                    </ul>
+                    <p><span class="emoji">💪</span> 现在你可以尝试找一家你感兴趣的上市公司的年报，并做初步分析！</p>
+                    <p>祝你在证券投资学的学习中有收获！✨</p>
+                `, 'judy');
+                
+                // 更新选项
+                const optionsContainer = document.getElementById('optionsContainer');
+                optionsContainer.innerHTML = `
+                    <div class="option" data-option="restart">
+                        <span class="option-number">🔄</span>
+                        <span>重新开始学习</span>
+                    </div>
+                    <div class="option" onclick="window.open('http://www.cninfo.com.cn', '_blank')">
+                        <span class="option-number">🌐</span>
+                        <span>去巨潮资讯网实践一下</span>
+                    </div>
+                    <div class="option" onclick="location.reload()">
+                        <span class="option-number">🏁</span>
+                        <span>完成实验项目</span>
+                    </div>
+                `;
+                
+                enableOptions();
+            }
+            
+            // 添加浮动气泡背景
+            function createBubbles() {
+                const container = document.querySelector('.container');
+                for (let i = 0; i < 25; i++) {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    const size = Math.random() * 100 + 30;
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${Math.random() * 100}%`;
+                    bubble.style.top = `${Math.random() * 100}%`;
+                    bubble.style.animationDelay = `${Math.random() * 5}s`;
+                    bubble.style.animationDuration = `${15 + Math.random() * 30}s`;
+                    container.appendChild(bubble);
+                }
+            }
+            
+            createBubbles();
+        });
+    </script>
+</body>
+</html>
