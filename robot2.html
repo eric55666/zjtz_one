@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人形机器人探险队 - 研究性学习报告</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts (Noto Sans SC for Chinese support) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc; /* Slate 50 */
+            color: #334155; /* Slate 700 */
+        }
+        
+        .section-card {
+            transition: all 0.3s ease;
+        }
+        
+        .section-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Custom scrollbar for fun factor */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        
+        .robot-part {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .robot-part:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        .emoji-icon {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+        
+        /* Tab Navigation Styles */
+        .nav-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            border-bottom: 4px solid #1d4ed8;
+        }
+        .nav-btn {
+            border-bottom: 4px solid transparent;
+        }
+    </style>
+
+    <!-- Placeholder Comments Required -->
+    <!-- Chosen Palette: "Future Friendly" - Warm neutral background (Slate 50) with friendly Technology Blue (Blue 500) and Energetic Orange (Orange 400) accents. Designed to be inviting and not clinical. -->
+    
+    <!-- Application Structure Plan:
+        1. "Mission Control" Header: Sets the theme of exploration.
+        2. Navigation Bar: Task-oriented tabs (Definition, History, Culture, Future) to break down the research into digestible chunks for 3rd graders.
+        3. Dynamic Content Area:
+           - "The Body" (Definition): Interactive diagram where clicking parts reveals their function (Sensors/Actuators).
+           - "Time Machine" (History): A vertical timeline of key robot milestones.
+           - "East vs West" (Culture): A comparative section with a Radar Chart to visualize different cultural attitudes towards robots.
+           - "Job Center" (Future): A Bar Chart showing what robots are good at vs. humans.
+        4. "My Research Notes" Footer: Synthesizes the learning.
+        Rationale: This structure follows the scientific inquiry method (Observe -> Contextualize -> Analyze -> Conclude) but disguises it as an "Exploration Mission" to keep engagement high.
+    -->
+    
+    <!-- Visualization & Content Choices:
+        1. Interactive Robot Anatomy (DOM Manipulation):
+           - Goal: Teach structure (Sensors, Brain, Actuators).
+           - Interaction: Click emoji/icons to update text description.
+           - Justification: Hands-on learning is better than reading a list for kids.
+        2. Cultural "Personality" Radar Chart (Chart.js):
+           - Goal: Compare Western (Sci-Fi fears) vs. Eastern (Astro Boy helpers) views.
+           - Viz: Radar chart comparing "Friendliness", "Power", "Human-likeness", "Scary Factor".
+           - Justification: Radar charts are great for showing "profiles" or "shapes" of concepts.
+        3. Job Capability Bar Chart (Chart.js):
+           - Goal: Show where robots help us (3D: Dull, Dirty, Dangerous).
+           - Viz: Bar chart comparing Robot vs. Human efficiency in specific tasks.
+           - Justification: Clear comparison of quantities.
+    -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- Header / Mission Control -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3 mb-2 md:mb-0">
+                <span class="text-4xl">🤖</span>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">人形机器人探险队</h1>
+                    <p class="text-sm text-slate-500">三年级研究性学习报告</p>
+                </div>
+            </div>
+            <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-bold text-sm">
+                任务进度: <span id="progress-text">准备出发</span>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <nav class="max-w-5xl mx-auto px-4 mt-2 overflow-x-auto">
+            <div class="flex space-x-2 min-w-max pb-2">
+                <button onclick="navigate('intro')" id="btn-intro" class="nav-btn active px-6 py-3 rounded-t-lg bg-white hover:bg-slate-100 font-bold text-slate-700 transition-colors">
+                    1. 它是谁? (定义)
+                </button>
+                <button onclick="navigate('history')" id="btn-history" class="nav-btn px-6 py-3 rounded-t-lg bg-white hover:bg-slate-100 font-bold text-slate-700 transition-colors">
+                    2. 时光机 (历史)
+                </button>
+                <button onclick="navigate('culture')" id="btn-culture" class="nav-btn px-6 py-3 rounded-t-lg bg-white hover:bg-slate-100 font-bold text-slate-700 transition-colors">
+                    3. 东西方大PK (文化)
+                </button>
+                <button onclick="navigate('future')" id="btn-future" class="nav-btn px-6 py-3 rounded-t-lg bg-white hover:bg-slate-100 font-bold text-slate-700 transition-colors">
+                    4. 未来任务 (应用)
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-5xl mx-auto w-full p-6">
+        
+        <!-- SECTION 1: INTRO (What is a robot?) -->
+        <section id="intro" class="space-y-8 animate-fade-in">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-blue-500">
+                <h2 class="text-2xl font-bold mb-3 text-slate-800">探险第一站：什么是人形机器人？</h2>
+                <p class="text-lg leading-relaxed text-slate-600">
+                    欢迎来到机器人实验室！人形机器人（Humanoid Robot）就是长得像人的机器。它们有头、有身体、有手脚。
+                    但是，它们是怎么动起来的呢？<strong>点击下面的机器人零件来研究一下吧！</strong>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                <!-- Interactive Anatomy Visualization -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg relative min-h-[400px] flex flex-col items-center justify-center border-2 border-slate-100">
+                    <h3 class="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-widest">解剖实验室</h3>
+                    
+                    <div class="relative w-64 h-80 bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center p-4">
+                        <!-- Head -->
+                        <div onclick="showPartInfo('brain')" class="robot-part w-20 h-20 bg-blue-100 rounded-2xl border-4 border-blue-400 flex items-center justify-center mb-2 z-10">
+                            <span class="text-4xl">🧠</span>
+                        </div>
+                        <!-- Eyes (absolute) -->
+                        <div onclick="showPartInfo('eyes')" class="robot-part absolute top-10 flex space-x-8 w-full justify-center z-20">
+                            <span class="text-xl bg-white rounded-full p-1 border-2 border-blue-500">👀</span>
+                            <span class="text-xl bg-white rounded-full p-1 border-2 border-blue-500">👀</span>
+                        </div>
+                        
+                        <!-- Body -->
+                        <div onclick="showPartInfo('battery')" class="robot-part w-32 h-32 bg-slate-200 rounded-xl border-4 border-slate-400 flex items-center justify-center relative mb-2">
+                            <span class="text-4xl">🔋</span>
+                        </div>
+
+                        <!-- Limbs -->
+                        <div class="flex space-x-16 w-full justify-center absolute top-28 pointer-events-none">
+                            <div onclick="showPartInfo('arm')" class="pointer-events-auto robot-part w-8 h-24 bg-orange-100 border-4 border-orange-300 rounded-full flex items-center justify-center -mt-2">
+                                <span class="text-xl">🦾</span>
+                            </div>
+                            <div onclick="showPartInfo('arm')" class="pointer-events-auto robot-part w-8 h-24 bg-orange-100 border-4 border-orange-300 rounded-full flex items-center justify-center -mt-2">
+                                <span class="text-xl">🦾</span>
+                            </div>
+                        </div>
+
+                         <!-- Legs -->
+                         <div class="flex space-x-4">
+                            <div onclick="showPartInfo('leg')" class="robot-part w-10 h-20 bg-slate-300 border-4 border-slate-500 rounded-b-xl flex items-end justify-center pb-2">
+                                <span class="text-xl">🦶</span>
+                            </div>
+                            <div onclick="showPartInfo('leg')" class="robot-part w-10 h-20 bg-slate-300 border-4 border-slate-500 rounded-b-xl flex items-end justify-center pb-2">
+                                <span class="text-xl">🦶</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-sm text-slate-400">点击上面的身体部位！</p>
+                </div>
+
+                <!-- Info Card -->
+                <div class="bg-blue-50 p-6 rounded-2xl border border-blue-200 h-full">
+                    <div id="part-info-content">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="text-4xl bg-white p-2 rounded-lg shadow-sm">🤖</span>
+                            <h3 class="text-xl font-bold text-blue-900">机器人构造笔记</h3>
+                        </div>
+                        <p class="text-lg text-blue-800 mb-4">
+                            机器人其实很像我们人类！我们有器官，它们有零件。
+                        </p>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="mr-2">🔹</span>
+                                <span><strong>大脑 (控制器):</strong> 这里的电脑芯片负责思考。</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2">🔹</span>
+                                <span><strong>眼睛/耳朵 (传感器):</strong> 帮它们看到路、听到声音。</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2">🔹</span>
+                                <span><strong>肌肉 (驱动器):</strong> 让它们能举起手、迈开腿的马达。</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: HISTORY -->
+        <section id="history" class="hidden space-y-8 animate-fade-in">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-purple-500">
+                <h2 class="text-2xl font-bold mb-3 text-slate-800">探险第二站：机器人时光机</h2>
+                <p class="text-lg leading-relaxed text-slate-600">
+                    机器人不是一天变出来的。从古代的木牛流马到现在的AI机器人，这是一段漫长的旅程。
+                </p>
+            </div>
+
+            <div class="relative border-l-4 border-purple-200 ml-4 md:ml-8 space-y-12 py-4">
+                <!-- Timeline Item 1 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div class="absolute -left-3 top-0 w-6 h-6 bg-purple-500 rounded-full border-4 border-white shadow-md"></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded mb-2">古代传说</span>
+                        <h3 class="text-xl font-bold text-slate-800">想象的开始</h3>
+                        <p class="text-slate-600 mt-2">
+                            很久很久以前，中国有“木牛流马”的传说，古希腊人也梦想着会自动动的雕像。那时候人们就在想：如果石头和木头能动起来该多好啊！
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 2 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div class="absolute -left-3 top-0 w-6 h-6 bg-purple-500 rounded-full border-4 border-white shadow-md"></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded mb-2">1920年</span>
+                        <h3 class="text-xl font-bold text-slate-800">"Robot"名字诞生</h3>
+                        <p class="text-slate-600 mt-2">
+                            捷克作家恰佩克在剧本《罗如姆万能机器人》里第一次发明了“Robot”这个词。意思是“苦力”或“劳役”。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 3 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div class="absolute -left-3 top-0 w-6 h-6 bg-purple-500 rounded-full border-4 border-white shadow-md"></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded mb-2">2000年</span>
+                        <h3 class="text-xl font-bold text-slate-800">阿西莫 (ASIMO) 登场</h3>
+                        <p class="text-slate-600 mt-2">
+                            本田公司发布了阿西莫。它可以双脚走路、跑步，甚至跳舞！这是人形机器人的一大步。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 4 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div class="absolute -left-3 top-0 w-6 h-6 bg-purple-500 rounded-full border-4 border-white shadow-md"></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow border-2 border-purple-100">
+                        <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded mb-2">现在 & 未来</span>
+                        <h3 class="text-xl font-bold text-slate-800">AI 大脑时代</h3>
+                        <p class="text-slate-600 mt-2">
+                            现在的机器人（比如特斯拉的Optimus）不仅会动，还有了AI（人工智能）大脑，能听懂我们说话，甚至帮我们做家务！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: CULTURE -->
+        <section id="culture" class="hidden space-y-8 animate-fade-in">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-red-500">
+                <h2 class="text-2xl font-bold mb-3 text-slate-800">探险第三站：东西方文化大PK</h2>
+                <p class="text-lg leading-relaxed text-slate-600">
+                    你有没有发现？在动画片和电影里，西方的机器人有时候很吓人（像终结者），但东方的机器人通常是好朋友（像哆啦A梦）。让我们用数据来看看这些差异！
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Data Viz -->
+                <div class="bg-white p-6 rounded-2xl shadow-md">
+                    <h3 class="text-center font-bold text-slate-700 mb-4">电影里的机器人性格分析</h3>
+                    <div class="chart-container">
+                        <canvas id="cultureChart"></canvas>
+                    </div>
+                    <div class="mt-4 flex justify-center space-x-4 text-xs">
+                        <div class="flex items-center"><span class="w-3 h-3 bg-red-400 rounded-full mr-1"></span> 西方视角 (挑战与恐惧)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 bg-blue-400 rounded-full mr-1"></span> 东方视角 (伙伴与灵魂)</div>
+                    </div>
+                </div>
+
+                <!-- Text Comparison -->
+                <div class="space-y-4">
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-100">
+                        <div class="flex items-center mb-3">
+                            <span class="text-3xl mr-3">🏰</span>
+                            <h3 class="text-xl font-bold text-red-800">西方文化 (Western)</h3>
+                        </div>
+                        <p class="text-red-900 mb-2"><strong>代表角色：</strong> 终结者 (Terminator), 弗兰肯斯坦</p>
+                        <p class="text-sm text-red-700">
+                            <strong>观点：</strong> 西方故事里，人们常担心机器人太聪明了会反抗人类。他们思考的是“人与机器的界限”。
+                        </p>
+                    </div>
+
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                        <div class="flex items-center mb-3">
+                            <span class="text-3xl mr-3">🏯</span>
+                            <h3 class="text-xl font-bold text-blue-800">东方文化 (Eastern)</h3>
+                        </div>
+                        <p class="text-blue-900 mb-2"><strong>代表角色：</strong> 铁臂阿童木 (Astro Boy), 哆啦A梦</p>
+                        <p class="text-sm text-blue-700">
+                            <strong>观点：</strong> 东方故事里（特别是日本），人们觉得万物都有灵性。机器人是帮助我们的好伙伴，像家人一样。
+                        </p>
+                    </div>
+
+                    <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                        <p class="text-center text-yellow-800 font-bold">
+                            💡 思考题：如果你有一个机器人，你希望它是你的保镖，还是你的朋友？
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: FUTURE -->
+        <section id="future" class="hidden space-y-8 animate-fade-in">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-green-500">
+                <h2 class="text-2xl font-bold mb-3 text-slate-800">探险终点：未来的任务</h2>
+                <p class="text-lg leading-relaxed text-slate-600">
+                    机器人越来越聪明了，它们未来能帮我们做什么呢？科学家说，它们最适合做 "3D" 工作 —— Dull (枯燥), Dirty (脏), Dangerous (危险) 的工作。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-2xl shadow-md flex flex-col justify-center">
+                    <h3 class="font-bold text-slate-700 mb-4 text-center">机器人 vs 人类：谁更适合？</h3>
+                    <div class="chart-container">
+                        <canvas id="jobsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <h3 class="font-bold text-slate-700">未来的应用场景</h3>
+                    
+                    <button onclick="updateFutureText('elderly')" class="flex items-center p-4 bg-white hover:bg-green-50 rounded-xl border border-slate-200 shadow-sm transition-all text-left group">
+                        <span class="text-3xl mr-4 group-hover:scale-110 transition-transform">👵</span>
+                        <div>
+                            <h4 class="font-bold text-slate-800">照顾老人</h4>
+                            <p class="text-xs text-slate-500">帮忙拿药、聊天、搀扶</p>
+                        </div>
+                    </button>
+
+                    <button onclick="updateFutureText('space')" class="flex items-center p-4 bg-white hover:bg-green-50 rounded-xl border border-slate-200 shadow-sm transition-all text-left group">
+                        <span class="text-3xl mr-4 group-hover:scale-110 transition-transform">🚀</span>
+                        <div>
+                            <h4 class="font-bold text-slate-800">太空探索</h4>
+                            <p class="text-xs text-slate-500">去火星探险，修理空间站</p>
+                        </div>
+                    </button>
+
+                    <button onclick="updateFutureText('danger')" class="flex items-center p-4 bg-white hover:bg-green-50 rounded-xl border border-slate-200 shadow-sm transition-all text-left group">
+                        <span class="text-3xl mr-4 group-hover:scale-110 transition-transform">🔥</span>
+                        <div>
+                            <h4 class="font-bold text-slate-800">危险救援</h4>
+                            <p class="text-xs text-slate-500">进入火场或地震废墟救人</p>
+                        </div>
+                    </button>
+
+                    <div id="future-detail" class="mt-4 p-4 bg-green-100 rounded-xl text-green-800 text-sm hidden">
+                        <!-- Dynamic text appears here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-8">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+            <h3 class="text-xl font-bold text-white mb-2">研究总结</h3>
+            <p class="max-w-2xl mx-auto mb-6 text-sm">
+                通过这次探险，我们知道了机器人不仅是铁皮人，它们有悠久的历史，不同的文化故事，
+                还有一个能够帮助人类的美好未来。科技是为了让生活更美好！
+            </p>
+            <div class="text-xs text-slate-500">
+                小学三年级研究性学习资料 | 生成日期: 2025
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- State Management ---
+        const appState = {
+            currentSection: 'intro',
+            robotParts: {
+                brain: {
+                    title: "大脑 (Brain)",
+                    desc: "这是机器人的控制中心。它不像我们的大脑是肉做的，而是由高级的电脑芯片（AI芯片）组成的。它负责接收命令、思考怎么走路、怎么说话。",
+                    icon: "🧠"
+                },
+                eyes: {
+                    title: "传感器 (Sensors)",
+                    desc: "机器人没有真正的眼睛和耳朵，但它们有摄像头、雷达和麦克风。这些设备叫'传感器'，帮它们感知周围的世界，不撞到墙壁。",
+                    icon: "👀"
+                },
+                arm: {
+                    title: "机械臂 (Manipulator)",
+                    desc: "机器人的手臂非常有力！它们由很多马达（关节）连在一起。有些机器人能拿鸡蛋不捏碎，有的能举起很重的箱子。",
+                    icon: "🦾"
+                },
+                leg: {
+                    title: "双足 (Bipedal)",
+                    desc: "让人形机器人走路很难！因为保持平衡很复杂。现在的机器人（像Atlas）不仅能走路，还能翻跟头呢！",
+                    icon: "🦶"
+                },
+                battery: {
+                    title: "能源 (Power)",
+                    desc: "机器人也要'吃饭'，不过它们吃的是电！它们肚子里通常装着大电池，给全身提供能量。",
+                    icon: "🔋"
+                }
+            },
+            futureDetails: {
+                elderly: "随着爷爷奶奶们变老，年轻人又很忙，机器人可以24小时陪伴老人，提醒吃药，还能在老人摔倒时报警。它们是最好的护工！",
+                space: "太空中没有空气，辐射很强，对人类很危险。但是机器人不怕！我们可以派它们去火星盖房子，等盖好了人类再去。",
+                danger: "当发生火灾或地震时，消防员叔叔进去很危险。机器人不怕高温和浓烟，可以冲进最危险的地方把人救出来。"
+            }
+        };
+
+        // --- Navigation Logic ---
+        function navigate(sectionId) {
+            // Update State
+            appState.currentSection = sectionId;
+
+            // Update UI: Hide all sections, show target
+            document.querySelectorAll('main > section').forEach(sec => {
+                sec.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            // Update Nav Buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-50', 'text-blue-700', 'border-blue-500');
+                btn.classList.add('text-slate-700');
+            });
+            const activeBtn = document.getElementById(`btn-${sectionId}`);
+            activeBtn.classList.add('active');
+
+            // Update Progress Text
+            const progressMap = {
+                'intro': '1/4 了解构造',
+                'history': '2/4 探索历史',
+                'culture': '3/4 比较文化',
+                'future': '4/4 展望未来'
+            };
+            document.getElementById('progress-text').innerText = progressMap[sectionId];
+
+            // Trigger Charts if entering section
+            if (sectionId === 'culture') initCultureChart();
+            if (sectionId === 'future') initJobsChart();
+        }
+
+        // --- Interaction Logic: Robot Anatomy ---
+        function showPartInfo(partKey) {
+            const info = appState.robotParts[partKey];
+            const contentDiv = document.getElementById('part-info-content');
+            
+            // Simple animation effect
+            contentDiv.style.opacity = '0';
+            setTimeout(() => {
+                contentDiv.innerHTML = `
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="text-4xl bg-white p-2 rounded-lg shadow-sm animate-bounce">${info.icon}</span>
+                        <h3 class="text-xl font-bold text-blue-900">${info.title}</h3>
+                    </div>
+                    <p class="text-lg text-blue-800 leading-relaxed font-medium">
+                        ${info.desc}
+                    </p>
+                `;
+                contentDiv.style.opacity = '1';
+            }, 200);
+        }
+
+        // --- Interaction Logic: Future Details ---
+        function updateFutureText(key) {
+            const text = appState.futureDetails[key];
+            const container = document.getElementById('future-detail');
+            container.innerText = text;
+            container.classList.remove('hidden');
+            container.classList.add('animate-pulse');
+            setTimeout(() => container.classList.remove('animate-pulse'), 500);
+        }
+
+        // --- Charts Implementation ---
+        let cultureChartInstance = null;
+        let jobsChartInstance = null;
+
+        function initCultureChart() {
+            if (cultureChartInstance) return; // Prevent re-render
+
+            const ctx = document.getElementById('cultureChart').getContext('2d');
+            cultureChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['战斗力 (Power)', '恐怖程度 (Scary)', '可爱程度 (Cute)', '像人的程度 (Human-like)', '忠诚度 (Loyal)'],
+                    datasets: [{
+                        label: '西方电影机器人',
+                        data: [90, 85, 20, 70, 40],
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: '东方动漫机器人',
+                        data: [60, 10, 90, 50, 95],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#cbd5e1' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: {
+                                font: { size: 12, family: "'Noto Sans SC', sans-serif" },
+                                color: '#475569'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function initJobsChart() {
+            if (jobsChartInstance) return;
+
+            const ctx = document.getElementById('jobsChart').getContext('2d');
+            jobsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['搬运重物', '计算速度', '创意画画', '关心别人', '危险环境工作'],
+                    datasets: [
+                        {
+                            label: '机器人得分',
+                            data: [95, 100, 40, 20, 98],
+                            backgroundColor: '#22c55e',
+                            borderRadius: 6
+                        },
+                        {
+                            label: '人类得分',
+                            data: [30, 50, 95, 100, 10],
+                            backgroundColor: '#fbbf24',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + ' 分';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Init ---
+        // Start at Intro
+        navigate('intro');
+
+    </script>
+</body>
+</html>
